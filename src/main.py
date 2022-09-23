@@ -79,6 +79,20 @@ def inputProccessing():
         os.system('cls' if os.name == 'nt' else 'clear')
         inputProccessing()
 
+def email_verification(email):
+    if email.endswith('@gmail.com') != True:
+        while email.endswith('@gmail.com') != True:
+            printc("\t[red]Incorrect email format\n[/red]")
+            email = input('\t')
+    return email
+
+def password_verification(f_pswrd, l_pswrd):
+    if f_pswrd != l_pswrd:
+        while f_pswrd != l_pswrd:
+            printc("\n\t[red]Password isn't the same try again![/red]\n")
+            l_pswrd = getpass('\t')
+    return f_pswrd
+
 # This function creates an account
 def create_account():
 
@@ -86,18 +100,12 @@ def create_account():
     username = input("\tUsername: ")
     email = input("\tEmail: ")
 
-    if email.endswith('@gmail.com') != True:
-        while email.endswith('@gmail.com') != True:
-            printc("\t[red]Incorrect email format\n[/red]")
-            email = input('\t')
+    email = email_verification(email)
 
     master_pswrd = getpass("\tCreate a master password: ")
     pswrd_confirmation = getpass("\tConform your master password: ")
 
-    if master_pswrd != pswrd_confirmation:
-        while master_pswrd != pswrd_confirmation:
-            printc("\n\t[red]Password isn't the same try again![/red]\n")
-            pswrd_confirmation = getpass('\t')
+    password_verification(master_pswrd, pswrd_confirmation)
     
     master_pswrd = encrypt.argon2_hash(master_pswrd)
 
@@ -169,33 +177,38 @@ def login():
 
     db_cursor.execute(search_query%(username, email, master_passwrd))
     counter = db_cursor.fetchone()
+    printc(counter)
 
     str_counter = ' '.join([str(elem) for elem in counter]) 
+    printc(str_counter)
+
     int_counter = int(str_counter)
+    printc(int_counter)
 
-    if int_counter == 0:
-       printc("\n\t[yellow]No account has been found![/yellow]")
-       printc("\t[red]Please try again![/red]")
-       sleep(2)
-       os.system('cls' if os.name == 'nt' else 'clear')
-       login()
-    else:
-       printc(f"\n\tWelcome back [green]{username}[/green]!\n")
-       get_account_id_query = """SELECT account_id FROM accounts 
-       WHERE account_username = '%s' 
-       AND account_email = '%s' 
-       AND account_master_passwrd = '%s'"""
 
-       db_cursor.execute(get_account_id_query%(username, email, master_passwrd))
-       Id = db_cursor.fetchone()
+    # if int_counter == 0:
+    #    printc("\n\t[yellow]No account has been found![/yellow]")
+    #    printc("\t[red]Please try again![/red]")
+    #    sleep(2)
+    #    os.system('cls' if os.name == 'nt' else 'clear')
+    #    login()
+    # else:
+    #    printc(f"\n\tWelcome back [green]{username}[/green]!\n")
+    #    get_account_id_query = """SELECT account_id FROM accounts 
+    #    WHERE account_username = '%s' 
+    #    AND account_email = '%s' 
+    #    AND account_master_passwrd = '%s'"""
+
+    #    db_cursor.execute(get_account_id_query%(username, email, master_passwrd))
+    #    Id = db_cursor.fetchone()
        
-       # Converting the Id data type from a tyole to an integer
-       int_id = functools.reduce(lambda sub, ele: sub * 10 + ele, Id)
-       db.close()
+    #    # Converting the Id data type from a tyole to an integer
+    #    int_id = functools.reduce(lambda sub, ele: sub * 10 + ele, Id)
+    #    db.close()
 
-       sleep(2)
-       os.system('cls' if os.name == 'nt' else 'clear')
-       account_menu(int_id)
+    #    sleep(2)
+    #    os.system('cls' if os.name == 'nt' else 'clear')
+    #    account_menu(int_id)
 
 def vault(account_id):
     printc("\t\t [red][ My Vaulet ][/red]\n\n")
