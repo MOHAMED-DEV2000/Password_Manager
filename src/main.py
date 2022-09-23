@@ -1,6 +1,6 @@
 import os
 import functools
-import encrypt
+import bcrypt
 from dbConfig import make_conncetion
 from time import sleep
 from rich import print as printc
@@ -91,23 +91,29 @@ def password_verification(f_pswrd, l_pswrd):
         while f_pswrd != l_pswrd:
             printc("\n\t[red]Password isn't the same try again![/red]\n")
             l_pswrd = getpass('\t')
-    return f_pswrd
 
 # This function creates an account
 def create_account():
 
     printc("\n\n\t\t  [green][ Create an account ][/green]\n\n")
+
     username = input("\tUsername: ")
     email = input("\tEmail: ")
-
     email = email_verification(email)
 
     master_pswrd = getpass("\tCreate a master password: ")
-    pswrd_confirmation = getpass("\tConform your master password: ")
+    pswrd_confirm = getpass("\tConform your master password: ")
 
-    password_verification(master_pswrd, pswrd_confirmation)
+    password_verification(master_pswrd, pswrd_confirm)
     
-    master_pswrd = encrypt.argon2_hash(master_pswrd)
+    master_pswrd = master_pswrd.encode('utf-8')
+    printc(master_pswrd) 
+
+    salt = bcrypt.gensalt(12) # create a random salt unique to this password
+    printc(salt)
+
+    master_pswrd = bcrypt.hashpw(master_pswrd, salt) # creates the salted hash password ready to be stored
+    printc(master_pswrd)
 
     printc("\n\t[0]-Exit \t[1]-Register")
     val = input()
@@ -120,15 +126,22 @@ def create_account():
         db = make_conncetion()
         db_cursor = db.cursor()
         
-        # check_query = "SELECT account_username, account_email FROM accounts WHERE account_username = '%s' AND account_email = '%s'"
-        check_query = "SELECT COUNT(*) FROM accounts WHERE account_username = '%s' AND account_email = '%s'"
-        add_query = "INSERT INTO accounts(account_username, account_email, account_master_passwrd) VALUES ('%s', '%s', '%s')"
+        check_query = """SELECT COUNT(*) FROM accounts
+            WHERE account_username = '%s' 
+            AND account_email = '%s'"""
+
+        add_query = """INSERT INTO accounts(account_username, account_email, account_hash, account_salt)
+            VALUES ('%s', '%s', '%s', '%s')"""
 
         db_cursor.execute(check_query%(username, email))
         counter = db_cursor.fetchone()
+        printc(counter)
         
         str_counter = ' '.join([str(elem) for elem in counter]) 
+        printc(str_counter)
+
         int_counter = int(str_counter)
+        printc(int_counter)
 
         if int_counter != 0:
             while int_counter != 0:
@@ -139,7 +152,7 @@ def create_account():
                 create_account()
 
         # account doesn't exist yet in database so we add it to the database
-        db_cursor.execute(add_query%(username, email, master_pswrd))
+        db_cursor.execute(add_query%(username, email, master_pswrd, salt))
         db.commit()
         printc("\n\t[green]Your account has been successfully created![/green]")
         db.close()
@@ -156,35 +169,42 @@ def create_account():
 
 # This function logs in into your personnel vaulet account
 def login():
-    printc("\t\t\t[green][ Log in ][/green]\n")
-    username = input("\tUsername:\t\t ")
+    pass
+    # printc("\t\t\t[green][ Log in ][/green]\n")
+    # username = input("\tUsername:\t\t ")
 
-    email = input("\tEmail:\t\t ")
-    # Add email verification
+    # email = input("\tEmail:\t\t ")
+    # # Add email verification
 
-    master_passwrd = getpass("\tPassword:\t\t ")
-    # Add password confirmation
+    # master_passwrd = getpass("\tPassword:\t\t ")
+    # # Add password confirmation
 
-    master_passwrd = encrypt.argon2_hash(master_passwrd)
-
-    db = make_conncetion() 
-    db_cursor = db.cursor()
+    # master_paswrd = master_paswrd.encode('utf-8')
+    # # salt = bcrypt.gensalt(12)
+    # get_salt = """SELECT salt FROM accounts 
+    #     WHERE account_username = '%s'
+    #     AND account_email = '%s'
+    #     LIMIT 1
+    #     """
     
-    search_query = """SELECT COUNT(*) FROM accounts
-        WHERE account_username = '%s' 
-        AND account_email = '%s' 
-        AND account_master_passwrd = '%s'"""
 
-    db_cursor.execute(search_query%(username, email, master_passwrd))
-    counter = db_cursor.fetchone()
-    printc(counter)
+    # db = make_conncetion() 
+    # db_cursor = db.cursor()
+    
+    # search_query = """SELECT COUNT(*) FROM accounts
+    #     WHERE account_username = '%s' 
+    #     AND account_email = '%s' 
+    #     AND account_hash = '%s'"""
 
-    str_counter = ' '.join([str(elem) for elem in counter]) 
-    printc(str_counter)
+    # db_cursor.execute(search_query%(username, email, master_passwrd))
+    # counter = db_cursor.fetchone()
+    # printc(counter)
 
-    int_counter = int(str_counter)
-    printc(int_counter)
+    # str_counter = ' '.join([str(elem) for elem in counter]) 
+    # printc(str_counter)
 
+    # int_counter = int(str_counter)
+    # printc(int_counter)
 
     # if int_counter == 0:
     #    printc("\n\t[yellow]No account has been found![/yellow]")
@@ -197,7 +217,7 @@ def login():
     #    get_account_id_query = """SELECT account_id FROM accounts 
     #    WHERE account_username = '%s' 
     #    AND account_email = '%s' 
-    #    AND account_master_passwrd = '%s'"""
+    #    AND account_hash = '%s'"""
 
     #    db_cursor.execute(get_account_id_query%(username, email, master_passwrd))
     #    Id = db_cursor.fetchone()
