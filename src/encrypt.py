@@ -2,7 +2,6 @@ import bcrypt
 from argon2 import PasswordHasher
 ph = PasswordHasher()
 
-# This function creates a salted hash for our master password
 def bcrypt_hash(master_paswrd):
     master_paswrd = master_paswrd.encode('utf-8')
     salt = bcrypt.gensalt(15)
