@@ -3,9 +3,9 @@
 # Infrastructure
 MySQL is used to store passwords.
 # Requried Libraries
-Hashlib
-bcrypt
-mysql.connector
-os
-getpass
-rich
+- Hashlib
+- bcrypt
+- mysql.connector
+- os
+- getpass
+- rich
