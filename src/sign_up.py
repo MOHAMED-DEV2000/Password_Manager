@@ -5,7 +5,6 @@ from dbConfig import make_conncetion
 from time import sleep
 from rich import print as printc
 from rich.console import Console
-from ast import literal_eval
 from getpass import getpass
 console = Console()
 
