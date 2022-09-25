@@ -1,5 +1,5 @@
 import os
-import Sign_in
+import bcrypt
 import main
 from dbConfig import make_conncetion
 from time import sleep
@@ -29,8 +29,8 @@ def password_verification(f_pswrd, l_pswrd):
 def create_account():
 
     printc("\n\n\t\t  [green][ Create an account ][/green]\n\n")
-    
-    # Taking data chosen by the user(username, email, Master password)
+
+    # Taking data from user(username, email, Master password)
     username = input("\tUsername: ")
     email = input("\tEmail: ")
     email = email_verification(email) # verify that email has the correct format
@@ -38,54 +38,61 @@ def create_account():
     master_pswrd = getpass("\tCreate a master password: ")
     pswrd_confirm = getpass("\tConform your master password: ")
     password_verification(master_pswrd, pswrd_confirm) # verify that 1st password is same as the 2nd one
-    encoded_master_pswrd =  hashlib.sha256(master_pswrd.encode('utf-8')).hexdigest() # encoding the password to utf-8 format "ex: b'password123'"
-    gsalt = bcrypt.gensalt(12) # create a random salt unique to this password
-    salt = hashlib.sha256(gsalt.encode('utf-8')).hexdigest()
-    master_pswrd = bcrypt.hashpw(encoded_master_pswrd, salt) # creates the salted hash password ready to be stored
+
+    bytePwd = master_pswrd.encode('utf-8') # converts it to b-string
+    mySalt = bcrypt.gensalt(12) # Generate salt
+    hash = bcrypt.hashpw(bytePwd, mySalt) # hash password
+
 
     printc("\n\t[0]-Exit \t[1]-Register")
     val = input()
-    val = mustBeInt(val)
-    val = mustBe0or1(val)
-    
+    val = main.mustBeInt(val) # Makes sure the value is an integer
+    val = main.mustBe0or1(val) # Makes sure the value is either 0 or 1 nothing else
+
     if val == 1:
 
         # add an account to your database if it doesn't already exist in the database
         db = make_conncetion()
         db_cursor = db.cursor()
-        
-        check_query = """SELECT COUNT(*) FROM accounts
-            WHERE account_username = '%s' 
-            AND account_email = '%s'"""
-        add_query = """INSERT INTO accounts(account_username, account_email, account_hash, account_salt)
-            VALUES ('%s', '%s', '%s', '%s')"""
 
-        db_cursor.execute(check_query%(username, email))
+        check_query = """ SELECT COUNT(*) FROM accounts
+            WHERE account_username = '%s' 
+            AND account_email = '%s'
+            """ # SQL query to check out how many accounts has the same username and email
+
+        add_query = """INSERT INTO accounts(account_username, account_email, account_hash, account_salt)
+            VALUES ("%s", "%s", "%s", "%s")
+            """ # SQL query to insert collected data to the database
+
+        db_cursor.execute(check_query % (username, email)) # executes the cheking query
         counter = db_cursor.fetchone()
-        str_counter = ' '.join([str(elem) for elem in counter]) 
-        int_counter = int(str_counter)
-        
-        
-        if int_counter != 0:
-            while int_counter != 0:
+
+        x = 0 
+        for row in counter:
+            x = row
+
+        if x != 0:
+            while x != 0:
                 printc("\t[yellow]This username is already taken.[/yellow]")
                 printc("\t[red]Try again![/red]\n")
+
                 sleep(1.8)
                 os.system('cls' if os.name == 'nt' else 'clear')
                 create_account()
 
         # account doesn't exist yet in database so we add it to the database
-        db_cursor.execute(add_query%(username, email, master_pswrd, salt))
+        db_cursor.execute(add_query % (username, email, hash, mySalt))
         db.commit()
+
         printc("\n\t[green]Your account has been successfully created![/green]")
         db.close()
-        
+
         # Returning to landing page
         sleep(2)
         os.system('cls' if os.name == 'nt' else 'clear')
-        inputProccessing() 
+        main.inputProccessing()
 
     elif val == 0:
         sleep(1)
         os.system('cls' if os.name == 'nt' else 'clear')
-        inputProccessing()
+        main.inputProccessing()

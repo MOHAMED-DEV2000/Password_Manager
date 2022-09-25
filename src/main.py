@@ -1,12 +1,10 @@
 import os
-from sign_up import *
-from Sign_in import *
-from dbConfig import make_conncetion
+import sign_up
+import sign_in
 from time import sleep
 from rich import print as printc
 from rich.console import Console
 from ast import literal_eval
-from getpass import getpass
 console = Console()
 
 # This function display a landing page
@@ -60,25 +58,30 @@ def inputProccessing():
     if val_type(val) != int:
         val = mustBeInt(val)
         val = mustBeInMenu(val)
-    
     val = int(val)
-    if val == 1:
+    
+    # if val == 1:
+    #     sleep(0.2)
+    #     os.system('cls' if os.name == 'nt' else 'clear')
+
+    #     sign_in.login()
+    if val == 2:
+        # elif val == 2:
         sleep(0.2)
         os.system('cls' if os.name == 'nt' else 'clear')
-        login()
-    elif val == 2:
-        sleep(0.2)
-        os.system('cls' if os.name == 'nt' else 'clear')
-        create_account()
-    elif val == 3:
-        os.system('cls' if os.name == 'nt' else 'clear')
-        sleep(0.3)
-        printc("\n\t\t[yellow]Exiting ..............[/yellow]")
-    else:
-        printc("\t[red]Please choose a number from the menu[/red]\n")
-        sleep(1)
-        os.system('cls' if os.name == 'nt' else 'clear')
-        inputProccessing()
+
+        sign_up.create_account()
+    # elif val == 3:
+    #     os.system('cls' if os.name == 'nt' else 'clear')
+    #     sleep(0.3)
+
+    #     printc("\n\t\t[yellow]Exiting ..............[/yellow]")
+    # else:
+    #     printc("\t[red]Please choose a number from the menu[/red]\n")
+    #     sleep(1)
+    #     os.system('cls' if os.name == 'nt' else 'clear')
+
+    #     inputProccessing()
 
 
 if __name__ == "__main__":
