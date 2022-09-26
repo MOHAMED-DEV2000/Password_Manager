@@ -1,11 +1,19 @@
 import os
-import bcrypt
+import argon2
 import main
 from dbConfig import make_conncetion
 from time import sleep
 from rich import print as printc
 from rich.console import Console
 from getpass import getpass
+
+argon2Hasher = argon2.PasswordHasher(
+    time_cost=3, # number of iterations
+    memory_cost=64 * 1024, # 64mb
+    parallelism=1, # how many parallel threads to use
+    hash_len=32, # the size of the derived key
+    salt_len=16 # the size of the random generated salt in bytes
+)
 console = Console()
 
 
@@ -37,11 +45,7 @@ def create_account():
     master_pswrd = getpass("\tCreate a master password: ")
     pswrd_confirm = getpass("\tConform your master password: ")
     password_verification(master_pswrd, pswrd_confirm) # verify that 1st password is same as the 2nd one
-
-    bytePwd = master_pswrd.encode('utf-8') # converts it to b-string
-    mySalt = bcrypt.gensalt(12) # Generate salt
-    hash = bcrypt.hashpw(bytePwd, mySalt) # hash password
-
+    hash = argon2Hasher.hash(master_pswrd)
 
     printc("\n\t[0]-Exit \t[1]-Register")
     val = input()
@@ -59,8 +63,11 @@ def create_account():
             AND account_email = '%s'
             """ # SQL query to check out how many accounts has the same username and email
 
-        add_query = """INSERT INTO accounts(account_username, account_email, account_hash, account_salt)
+        badd_query = """INSERT INTO accounts(account_username, account_email, account_hash, account_salt)
             VALUES ("%s", "%s", "%s", "%s")
+            """ # SQL query to insert collected data to the database
+        Argadd_query = """INSERT INTO accounts(account_username, account_email, account_hash)
+            VALUES ("%s", "%s", "%s")
             """ # SQL query to insert collected data to the database
 
         db_cursor.execute(check_query % (username, email)) # executes the cheking query
@@ -80,7 +87,8 @@ def create_account():
                 create_account()
 
         # account doesn't exist yet in database so we add it to the database
-        db_cursor.execute(add_query % (username, email, hash, mySalt))
+
+        db_cursor.execute(Argadd_query % (username, email, hash))
         db.commit()
 
         printc("\n\t[green]Your account has been successfully created![/green]")

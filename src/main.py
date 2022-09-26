@@ -60,28 +60,27 @@ def inputProccessing():
         val = mustBeInMenu(val)
     val = int(val)
     
-    # if val == 1:
-    #     sleep(0.2)
-    #     os.system('cls' if os.name == 'nt' else 'clear')
+    if val == 1:
+        sleep(0.2)
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-    #     sign_in.login()
-    if val == 2:
-        # elif val == 2:
+        sign_in.login()
+    elif val == 2:
         sleep(0.2)
         os.system('cls' if os.name == 'nt' else 'clear')
 
         sign_up.create_account()
-    # elif val == 3:
-    #     os.system('cls' if os.name == 'nt' else 'clear')
-    #     sleep(0.3)
+    elif val == 3:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        sleep(0.3)
 
-    #     printc("\n\t\t[yellow]Exiting ..............[/yellow]")
-    # else:
-    #     printc("\t[red]Please choose a number from the menu[/red]\n")
-    #     sleep(1)
-    #     os.system('cls' if os.name == 'nt' else 'clear')
+        printc("\n\t\t[yellow]Exiting ..............[/yellow]")
+    else:
+        printc("\t[red]Please choose a number from the menu[/red]\n")
+        sleep(1)
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-    #     inputProccessing()
+        inputProccessing()
 
 
 if __name__ == "__main__":
