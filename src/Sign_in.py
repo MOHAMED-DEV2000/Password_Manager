@@ -19,21 +19,53 @@ argon2Hasher = argon2.PasswordHasher(
 console = Console()
 
 
-def isUserExist():
-    pass
+def isUserExist(username, email):
+    search_query = """SELECT COUNT(*) FROM accounts
+        WHERE account_username = "%s" 
+        AND account_email = "%s" 
+        AND account_hash = "%s"
+        """
 
-def pwdAuthentication():
-    pass
+    db = make_conncetion()
+    db_cursor = db.cursor()
 
-# This function logs in into your personnel vaulet account
-def login():
-    printc("\t\t\t[green][ Log in ][/green]\n")
+    db_cursor.execute(search_query % (username, email, master_passwrd))
+    counter = db_cursor.fetchone()
+    printc(counter)
 
-    username = input("\tUsername:\t\t ")
-    email = input("\tEmail:\t\t ")
-    email = sign_up.email_verification(email)
+    str_counter = ' '.join([str(elem) for elem in counter])
+    printc(str_counter)
 
-    master_passwrd = getpass("\tPassword:\t\t ")
+    int_counter = int(str_counter)
+    printc(int_counter)
+
+    if int_counter == 0:
+        return False
+        # printc("\n\t[yellow]No account has been found![/yellow]")
+        # printc("\t[red]Please try again![/red]")
+        # sleep(2)
+        # os.system('cls' if os.name == 'nt' else 'clear')
+        # login()
+    else:
+        return True
+        # printc(f"\n\tWelcome back [green]{username}[/green]!\n")
+        # get_account_id_query = """SELECT account_id FROM accounts 
+        #     WHERE account_username = "%s" 
+        #     AND account_email = "%s"
+        #     AND account_hash = "%s"
+        #     """
+        # db_cursor.execute(get_account_id_query % (username, email, master_passwrd))
+        # Id = db_cursor.fetchone()
+
+        # # Converting the Id data type from a tyole to an integer
+        # int_id = functools.reduce(lambda sub, ele: sub * 10 + ele, Id)
+        # db.close()
+
+        # sleep(2)
+        # os.system('cls' if os.name == 'nt' else 'clear')
+        # account_menu(int_id)
+
+def pwdAuthentication(username, email, MasterPswd):
     # TODO: Argon2 Vr
     get_hash = """SELECT account_hash FROM accounts 
         WHERE account_username = '%s'
@@ -47,55 +79,32 @@ def login():
     J = ''
     for h in j:
         J = h
-    verifyValid = argon2Hasher.verify(J, master_passwrd)
+    verifyValid = argon2Hasher.verify(J, MasterPswd)
+
+    return verifyValid
+
+# This function logs in into your personnel vaulet account
+def login():
+    printc("\t\t\t[green][ Log in ][/green]\n")
+
+    username = input("\tUsername:\t\t ")
+    email = input("\tEmail:\t\t ")
+    email = sign_up.email_verification(email)
+
+    master_passwrd = getpass("\tPassword:\t\t ")
     
-    
+    # isExit = isUserExit(username, email)
+    # if isExit == True
+    #         Then 
+    #            isValid = pwdAuthentication(sername, email, master_passwrd)
+    #               if isValid == True
+    #                      Then .........
+    #               if isValid != True
+    #                       Then .........
+               
 
-
-
-    # search_query = """SELECT COUNT(*) FROM accounts
-    #     WHERE account_username = "%s" 
-    #     AND account_email = "%s" 
-    #     AND account_hash = "%s"
-    #     """
-
-    # db = make_conncetion()
-    # db_cursor = db.cursor()
-
-    # db_cursor.execute(search_query % (username, email, master_passwrd))
-    # counter = db_cursor.fetchone()
-    # printc(counter)
-
-    # str_counter = ' '.join([str(elem) for elem in counter])
-    # printc(str_counter)
-
-    # int_counter = int(str_counter)
-    # printc(int_counter)
-
-    # if int_counter == 0:
-    #     printc("\n\t[yellow]No account has been found![/yellow]")
-    #     printc("\t[red]Please try again![/red]")
-    #     sleep(2)
-    #     os.system('cls' if os.name == 'nt' else 'clear')
-    #     login()
-    # else:
-    #     printc(f"\n\tWelcome back [green]{username}[/green]!\n")
-    #     get_account_id_query = """SELECT account_id FROM accounts 
-    #         WHERE account_username = "%s" 
-    #         AND account_email = "%s"
-    #         AND account_hash = "%s"
-    #         """
-
-    #     db_cursor.execute(get_account_id_query % (username, email, master_passwrd))
-    #     Id = db_cursor.fetchone()
-
-    #     # Converting the Id data type from a tyole to an integer
-    #     int_id = functools.reduce(lambda sub, ele: sub * 10 + ele, Id)
-    #     db.close()
-
-    #     sleep(2)
-    #     os.system('cls' if os.name == 'nt' else 'clear')
-    #     account_menu(int_id)
+    # if isExit != True
+    #         Then .........
 
 
 def vault(account_id):
