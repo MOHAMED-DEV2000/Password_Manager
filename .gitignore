@@ -2,5 +2,6 @@
 src/__pycache__/dbConfig.cpython-310.pyc
 *.pyc
 *.pyc
+* .vscode
 src/__pycache__/dbConfig.cpython-310.pyc
 src/__pycache__/dbConfig.cpython-310.pyc
