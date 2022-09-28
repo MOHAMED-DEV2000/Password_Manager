@@ -25,12 +25,12 @@ def cleanScreen():
 
 def isUserExist(username, email):
     search_query = """SELECT COUNT(*) FROM accounts
-        WHERE account_username = "%s" 
-        AND account_email = "%s" 
+        WHERE account_username = %s 
+        AND account_email = %s 
         """
     db = make_conncetion()
     db_cursor = db.cursor()
-    db_cursor.execute(search_query % (username, email))
+    db_cursor.execute(search_query, (username, email))
     counter = db_cursor.fetchone()
 
     str_counter = ' '.join([str(elem) for elem in counter])
@@ -42,13 +42,13 @@ def isUserExist(username, email):
 
 def pwdAuthentication(username, email, MasterPswd):
     get_hash = """SELECT account_hash FROM accounts 
-        WHERE account_username = '%s'
-        AND account_email = '%s'
+        WHERE account_username = %s
+        AND account_email = %s
         LIMIT 1 
         """
     db = make_conncetion()
     db_cursor = db.cursor()
-    db_cursor.execute(get_hash % (username, email))
+    db_cursor.execute(get_hash, (username, email))
     j = db_cursor.fetchone()
     J = ''
     for h in j:

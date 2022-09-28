@@ -63,15 +63,15 @@ def create_account():
         db_cursor = db.cursor()
 
         check_query = """ SELECT COUNT(*) FROM accounts
-            WHERE account_username = '%s' 
-            AND account_email = '%s'
+            WHERE account_username = %s 
+            AND account_email = %s
             """ # SQL query to check out how many accounts has the same username and email
 
         Argadd_query = """INSERT INTO accounts(account_username, account_email, account_hash)
-            VALUES ("%s", "%s", "%s")
+            VALUES (%s, %s, %s)
             """ # SQL query to insert collected data to the database
 
-        db_cursor.execute(check_query % (username, email)) # executes the cheking query
+        db_cursor.execute(check_query, (username, email)) # executes the cheking query
         counter = db_cursor.fetchone()
 
         x = 0 
@@ -88,7 +88,7 @@ def create_account():
 
         # account doesn't exist yet in database so we add it to the database
 
-        db_cursor.execute(Argadd_query % (username, email, hash))
+        db_cursor.execute(Argadd_query, (username, email, hash))
         db.commit()
 
         printc("\n\t[green]Your account has been successfully created![/green]")
