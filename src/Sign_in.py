@@ -1,8 +1,8 @@
 import os
+from platform import platform
 import main
 import argon2
 import sign_up
-import functools
 from dbConfig import make_conncetion
 from time import sleep
 from rich import print as printc
@@ -19,54 +19,28 @@ argon2Hasher = argon2.PasswordHasher(
 console = Console()
 
 
+def cleanScreen():
+    sleep(2)
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 def isUserExist(username, email):
     search_query = """SELECT COUNT(*) FROM accounts
         WHERE account_username = "%s" 
         AND account_email = "%s" 
-        AND account_hash = "%s"
         """
-
     db = make_conncetion()
     db_cursor = db.cursor()
-
-    db_cursor.execute(search_query % (username, email, master_passwrd))
+    db_cursor.execute(search_query % (username, email))
     counter = db_cursor.fetchone()
-    printc(counter)
 
     str_counter = ' '.join([str(elem) for elem in counter])
-    printc(str_counter)
-
     int_counter = int(str_counter)
-    printc(int_counter)
 
-    if int_counter == 0:
-        return False
-        # printc("\n\t[yellow]No account has been found![/yellow]")
-        # printc("\t[red]Please try again![/red]")
-        # sleep(2)
-        # os.system('cls' if os.name == 'nt' else 'clear')
-        # login()
-    else:
+    if int_counter != 0:
         return True
-        # printc(f"\n\tWelcome back [green]{username}[/green]!\n")
-        # get_account_id_query = """SELECT account_id FROM accounts 
-        #     WHERE account_username = "%s" 
-        #     AND account_email = "%s"
-        #     AND account_hash = "%s"
-        #     """
-        # db_cursor.execute(get_account_id_query % (username, email, master_passwrd))
-        # Id = db_cursor.fetchone()
-
-        # # Converting the Id data type from a tyole to an integer
-        # int_id = functools.reduce(lambda sub, ele: sub * 10 + ele, Id)
-        # db.close()
-
-        # sleep(2)
-        # os.system('cls' if os.name == 'nt' else 'clear')
-        # account_menu(int_id)
+    return False 
 
 def pwdAuthentication(username, email, MasterPswd):
-    # TODO: Argon2 Vr
     get_hash = """SELECT account_hash FROM accounts 
         WHERE account_username = '%s'
         AND account_email = '%s'
@@ -85,37 +59,50 @@ def pwdAuthentication(username, email, MasterPswd):
 
 # This function logs in into your personnel vaulet account
 def login():
+    #TODO Task: Page 1 make sure that we have the account in the database
     printc("\t\t\t[green][ Log in ][/green]\n")
 
     username = input("\tUsername:\t\t ")
     email = input("\tEmail:\t\t ")
     email = sign_up.email_verification(email)
-
-    master_passwrd = getpass("\tPassword:\t\t ")
+    IsUserExit = isUserExist(username, email)
     
-    # isExit = isUserExit(username, email)
-    # if isExit == True
-    #         Then 
-    #            isValid = pwdAuthentication(sername, email, master_passwrd)
-    #               if isValid == True
-    #                      Then .........
-    #               if isValid != True
-    #                       Then .........
-               
+    if IsUserExit != True:
+            while IsUserExit != True:
+                        printc("\n\t[yellow]No account has been found![/yellow]")
+                        printc("\t[red]Please try again![/red]")
+                        cleanScreen()
 
-    # if isExit != True
-    #         Then .........
+                        username = input("\tUsername:\t\t ")
+                        email = input("\tEmail:\t\t ")
+                        email = sign_up.email_verification(email)
+                        IsUserExit = isUserExist(username, email)
 
+    cleanScreen()
 
-def vault(account_id):
-    printc("\t\t [red][ My Vaulet ][/red]\n\n")
+    #TODO Task: Page 2 make sure that the master password is correct
+    printc(f"\n\tWelcome back [green]{username}[/green]!\n")
+    master_passwrd = getpass("\tPassword:\t\t ")           
+    isValid = pwdAuthentication(username, email, master_passwrd)
+    if isValid != True:
+        while isValid != True:
+            printc("\tpassword isn't corresct try again!\n")
+            cleanScreen()
 
-def add_password_to_vault(account_id):
+            master_passwrd = getpass("\tPassword:\t\t ")
+            isValid = pwdAuthentication(username, email, master_passwrd)
+    
+    cleanScreen()
+    account_menu(username, email, master_passwrd)
+
+def vault(username, email, master_passwrd):
+    printc("\t\t [red][ My Vault ][/red]\n\n")
+
+def add_new_platform_to_vault(username, email, master_passwrd):
     printc("\t\t[yellow]Adding a new password is proccessing.......[/yellow]\n")
 
 # This function shows the application menu to see, edite, delete and add passwords
-def account_menu(account_id):
-    account_id = account_id
+def account_menu(username, email, master_passwrd):
 
     printc("\t\t [red] [ Menu ] [/red]\n")
     printc("\t1) My Vault")
@@ -127,13 +114,13 @@ def account_menu(account_id):
     val = main.mustBeInMenu(val)
 
     if val == 1:
-        vault(account_id)
+        vault(username, email, master_passwrd)
 
     elif val == 2:
-        add_password_to_vault(account_id)
+        add_new_platform_to_vault(username, email, master_passwrd)
 
     elif val == 3:
         printc("\t\t[yellow]Returing to home page .........[/yellow]\n")
-        sleep(1)
-        os.system('cls' if os.name == 'nt' else 'clear')
+        cleanScreen()
+
         main.inputProccessing()

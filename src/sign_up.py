@@ -17,6 +17,10 @@ argon2Hasher = argon2.PasswordHasher(
 console = Console()
 
 
+def cleanScreen():
+    sleep(2)
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 # This function makes sure that the email has the correct format
 def email_verification(email):
     if email.endswith('@gmail.com') != True:
@@ -63,9 +67,6 @@ def create_account():
             AND account_email = '%s'
             """ # SQL query to check out how many accounts has the same username and email
 
-        badd_query = """INSERT INTO accounts(account_username, account_email, account_hash, account_salt)
-            VALUES ("%s", "%s", "%s", "%s")
-            """ # SQL query to insert collected data to the database
         Argadd_query = """INSERT INTO accounts(account_username, account_email, account_hash)
             VALUES ("%s", "%s", "%s")
             """ # SQL query to insert collected data to the database
@@ -82,8 +83,7 @@ def create_account():
                 printc("\t[yellow]This username is already taken.[/yellow]")
                 printc("\t[red]Try again![/red]\n")
 
-                sleep(1.8)
-                os.system('cls' if os.name == 'nt' else 'clear')
+                cleanScreen()
                 create_account()
 
         # account doesn't exist yet in database so we add it to the database
@@ -95,11 +95,9 @@ def create_account():
         db.close()
 
         # Returning to landing page
-        sleep(2)
-        os.system('cls' if os.name == 'nt' else 'clear')
+        cleanScreen()
         main.inputProccessing()
 
     elif val == 0:
-        sleep(1)
-        os.system('cls' if os.name == 'nt' else 'clear')
+        cleanScreen()
         main.inputProccessing()

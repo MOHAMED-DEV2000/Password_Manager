@@ -7,6 +7,10 @@ from rich.console import Console
 from ast import literal_eval
 console = Console()
 
+def cleanScreen():
+    sleep(1.5)
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 # This function display a landing page
 def main():
     console = Console()
@@ -61,24 +65,20 @@ def inputProccessing():
     val = int(val)
     
     if val == 1:
-        sleep(0.2)
-        os.system('cls' if os.name == 'nt' else 'clear')
-
+        cleanScreen()
         sign_in.login()
+
     elif val == 2:
-        sleep(0.2)
-        os.system('cls' if os.name == 'nt' else 'clear')
+        cleanScreen()
 
         sign_up.create_account()
     elif val == 3:
-        os.system('cls' if os.name == 'nt' else 'clear')
-        sleep(0.3)
-
         printc("\n\t\t[yellow]Exiting ..............[/yellow]")
+        cleanScreen()
+        
     else:
         printc("\t[red]Please choose a number from the menu[/red]\n")
-        sleep(1)
-        os.system('cls' if os.name == 'nt' else 'clear')
+        cleanScreen()
 
         inputProccessing()
 
