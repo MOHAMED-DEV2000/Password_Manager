@@ -1,5 +1,4 @@
 import os
-from platform import platform
 import main
 import argon2
 import sign_up
@@ -61,7 +60,7 @@ def pwdAuthentication(username, email, MasterPswd):
         return areTheyMatch
     except (Exception, argon2.exceptions.VerifyMismatchError):
         while True:
-            printc("\t[red] password isn't corresct try again! [/red]\n")
+            printc("\n\t[red] password isn't corresct try again! [/red]\n")
             cleanScreen()
             
             printc("\t\t\t[green][ Password Verification ][/green]\n")
