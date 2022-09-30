@@ -1,11 +1,12 @@
 import os
-import argon2
-import main
-from dbConfig import make_conncetion
+from getpass import getpass
 from time import sleep
 from rich import print as printc
 from rich.console import Console
-from getpass import getpass
+import argon2
+import main
+from dbConfig import make_conncetion
+
 
 argon2Hasher = argon2.PasswordHasher(
     time_cost=3, # number of iterations
@@ -17,33 +18,35 @@ argon2Hasher = argon2.PasswordHasher(
 console = Console()
 
 
-def cleanScreen():
-    sleep(2)
+def cleanScreen() -> None:
+    sleep(1.2)
     os.system('cls' if os.name == 'nt' else 'clear')
 
-# def username_verification(username):
-#     while True:
-#         db = make_conncetion()
-#         db_cursor = db.cursor()
+def username_verification(username: str) -> str:
+    while True:
+        db = make_conncetion()
+        db_cursor = db.cursor()
 
-#         check_query = """ SELECT COUNT(*) FROM accounts
-#         WHERE account_username = %s
-#         """
-#         db_cursor.execute(check_query, (username)) # executes the cheking query
-#         account_counter = db_cursor.fetchone()
+        check_query = """ SELECT COUNT(*) FROM accounts
+        WHERE account_username = (%s)
+        """
+        db_cursor.execute(check_query, (username, )) # executes the cheking query
+        account_counter = db_cursor.fetchone()
 
-#         Account_counter = 0 
-#         for row in account_counter:
-#             Account_counter = row
+        Account_counter = 0 
+        for row in account_counter:
+            Account_counter = row
 
-#         if Account_counter == 0:
-#             return username
-#         else:
-#             printc("\t[yellow]This username is already taken!\n[/yellow]")
-#             username = input('\t')
+        if Account_counter == 0:
+            return username
+
+        cleanScreen()
+        printc("\n\n\t\t  [green][ Create an account ][/green]\n\n")
+        printc("\t[yellow]This username is already taken!\n[/yellow]")
+        username = input("\tUsername: ")
 
 # This function makes sure that the email has the correct format
-def email_verification(email):
+def email_verification(email: str) -> str:
     if email.endswith('@gmail.com') != True:
         while email.endswith('@gmail.com') != True:
             printc("\t[red]Incorrect email format\n[/red]")
@@ -51,20 +54,21 @@ def email_verification(email):
     return email
 
 # This function let the user confirms the password
-def password_verification(f_pswrd, l_pswrd):
+def password_verification(f_pswrd: str, l_pswrd: str) -> None:
+    # TODO Task: Fix a bug here
     if f_pswrd != l_pswrd:
         while f_pswrd != l_pswrd:
             printc("\n\t[red]Passwords do not match try again![/red]\n")
             l_pswrd = getpass('\t')
 
 # This function creates an account
-def create_account():
+def create_account() -> None:
 
     printc("\n\n\t\t  [green][ Create an account ][/green]\n\n")
 
     # Taking data from user(username, email, Master password)
     username = input("\tUsername: ")
-    # username  = username_verification(username)
+    username  = username_verification(username)
 
     email = input("\tEmail: ")
     email = email_verification(email) # verify that email has the correct format

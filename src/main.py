@@ -8,12 +8,11 @@ from ast import literal_eval
 console = Console()
 
 def cleanScreen():
-    sleep(1.5)
+    sleep(1.2)
     os.system('cls' if os.name == 'nt' else 'clear')
 
 # This function display a landing page
 def main():
-    console = Console()
     console.print("\n\t\t [ MS Vault ]", style="bold red")
     console.print("\tWelcome to your secure password manager! Log in\nor create your account to access your secret and secure vaulet.", style="bold green")
     console.print("\n\t1) Log in\n\t2) Sign up\n\t3) Exit\n")
