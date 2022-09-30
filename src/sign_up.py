@@ -21,6 +21,27 @@ def cleanScreen():
     sleep(2)
     os.system('cls' if os.name == 'nt' else 'clear')
 
+# def username_verification(username):
+#     while True:
+#         db = make_conncetion()
+#         db_cursor = db.cursor()
+
+#         check_query = """ SELECT COUNT(*) FROM accounts
+#         WHERE account_username = %s
+#         """
+#         db_cursor.execute(check_query, (username)) # executes the cheking query
+#         account_counter = db_cursor.fetchone()
+
+#         Account_counter = 0 
+#         for row in account_counter:
+#             Account_counter = row
+
+#         if Account_counter == 0:
+#             return username
+#         else:
+#             printc("\t[yellow]This username is already taken!\n[/yellow]")
+#             username = input('\t')
+
 # This function makes sure that the email has the correct format
 def email_verification(email):
     if email.endswith('@gmail.com') != True:
@@ -33,7 +54,7 @@ def email_verification(email):
 def password_verification(f_pswrd, l_pswrd):
     if f_pswrd != l_pswrd:
         while f_pswrd != l_pswrd:
-            printc("\n\t[red]Password isn't the same try again![/red]\n")
+            printc("\n\t[red]Passwords do not match try again![/red]\n")
             l_pswrd = getpass('\t')
 
 # This function creates an account
@@ -43,6 +64,8 @@ def create_account():
 
     # Taking data from user(username, email, Master password)
     username = input("\tUsername: ")
+    # username  = username_verification(username)
+
     email = input("\tEmail: ")
     email = email_verification(email) # verify that email has the correct format
 
@@ -72,14 +95,14 @@ def create_account():
             """ # SQL query to insert collected data to the database
 
         db_cursor.execute(check_query, (username, email)) # executes the cheking query
-        counter = db_cursor.fetchone()
+        account_counter = db_cursor.fetchone()
 
-        x = 0 
-        for row in counter:
-            x = row
+        Account_counter = 0 
+        for row in account_counter:
+            Account_counter = row
 
-        if x != 0:
-            while x != 0:
+        if Account_counter != 0:
+            while Account_counter != 0:
                 printc("\t[yellow]This username is already taken.[/yellow]")
                 printc("\t[red]Try again![/red]\n")
 
@@ -99,5 +122,6 @@ def create_account():
         main.inputProccessing()
 
     elif val == 0:
+        printc("\n\t[yellow]Returing to home page .........[/yellow]\n")
         cleanScreen()
         main.inputProccessing()

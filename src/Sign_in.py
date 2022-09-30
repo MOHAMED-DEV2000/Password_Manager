@@ -10,11 +10,11 @@ from rich.console import Console
 from getpass import getpass
 
 argon2Hasher = argon2.PasswordHasher(
-    time_cost=3, # number of iterations
-    memory_cost=64 * 1024, # 64mb
-    parallelism=1, # how many parallel threads to use
-    hash_len=32, # the size of the derived key
-    salt_len=16 # the size of the random generated salt in bytes
+    time_cost = 3, # number of iterations
+    memory_cost = 64 * 1024, # 64mb
+    parallelism = 1, # how many parallel threads to use
+    hash_len = 32, # the size of the derived key
+    salt_len = 16 # the size of the random generated salt in bytes
 )
 console = Console()
 
@@ -41,21 +41,34 @@ def isUserExist(username, email):
     return False 
 
 def pwdAuthentication(username, email, MasterPswd):
-    get_hash = """SELECT account_hash FROM accounts 
+
+    get_stored_hash = """SELECT account_hash FROM accounts 
         WHERE account_username = %s
         AND account_email = %s
         LIMIT 1 
         """
     db = make_conncetion()
     db_cursor = db.cursor()
-    db_cursor.execute(get_hash, (username, email))
-    j = db_cursor.fetchone()
-    J = ''
-    for h in j:
-        J = h
-    verifyValid = argon2Hasher.verify(J, MasterPswd)
+    db_cursor.execute(get_stored_hash, (username, email))
+    StrdAccountHash = db_cursor.fetchone()
 
-    return verifyValid
+    strdAccountHash = ''
+    for row in StrdAccountHash:
+        strdAccountHash = row
+
+    try:
+        areTheyMatch = argon2Hasher.verify(strdAccountHash, MasterPswd)
+        return areTheyMatch
+    except (Exception, argon2.exceptions.VerifyMismatchError):
+        while True:
+            printc("\t[red] password isn't corresct try again! [/red]\n")
+            cleanScreen()
+            
+            printc("\t\t\t[green][ Password Verification ][/green]\n")
+            master_passwrd = getpass("\tPassword:\t\t ")
+            areTheyMatch = pwdAuthentication(username, email, master_passwrd)
+            if areTheyMatch == True:
+                return areTheyMatch            
 
 # This function logs in into your personnel vaulet account
 def login():
@@ -72,7 +85,8 @@ def login():
                         printc("\n\t[yellow]No account has been found![/yellow]")
                         printc("\t[red]Please try again![/red]")
                         cleanScreen()
-
+                        
+                        printc("\t\t\t[green][ Log in ][/green]\n")
                         username = input("\tUsername:\t\t ")
                         email = input("\tEmail:\t\t ")
                         email = sign_up.email_verification(email)
@@ -81,16 +95,9 @@ def login():
     cleanScreen()
 
     #TODO Task: Page 2 make sure that the master password is correct
-    printc(f"\n\tWelcome back [green]{username}[/green]!\n")
+    printc("\t\t\t[green][ Password Verification ][/green]\n")
     master_passwrd = getpass("\tPassword:\t\t ")           
     isValid = pwdAuthentication(username, email, master_passwrd)
-    if isValid != True:
-        while isValid != True:
-            printc("\tpassword isn't corresct try again!\n")
-            cleanScreen()
-
-            master_passwrd = getpass("\tPassword:\t\t ")
-            isValid = pwdAuthentication(username, email, master_passwrd)
     
     cleanScreen()
     account_menu(username, email, master_passwrd)
@@ -105,6 +112,7 @@ def add_new_platform_to_vault(username, email, master_passwrd):
 def account_menu(username, email, master_passwrd):
 
     printc("\t\t [red] [ Menu ] [/red]\n")
+    printc(f"\n\tWelcome back [green]{username}[/green]!\n")
     printc("\t1) My Vault")
     printc("\t2) Add a password")
     printc("\t3) Exit\n\t")
