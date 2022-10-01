@@ -2,3 +2,9 @@ __pycache__
 *.pyc
 * .vscode
 .cache
+*.pyc
+src/__pycache__/dbConfig.cpython-310.pyc
+*.pyc
+src/__pycache__/dbConfig.cpython-310.pyc
+*.py
+src/tempCodeRunnerFile.py
