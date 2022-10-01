@@ -17,8 +17,7 @@ argon2Hasher = argon2.PasswordHasher(
 )
 console = Console()
 
-
-def cleanScreen() -> None:
+def cleanScreen():
     sleep(1.2)
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -62,7 +61,7 @@ def password_verification(f_pswrd: str, l_pswrd: str) -> None:
             l_pswrd = getpass('\t')
 
 # This function creates an account
-def create_account() -> None:
+def create_account():
 
     printc("\n\n\t\t  [green][ Create an account ][/green]\n\n")
 
