@@ -101,11 +101,60 @@ def login():
     cleanScreen()
     account_menu(username, email, master_passwrd)
 
+def edite_password():
+    printc("\t\t[yellow]Editing the password is proccessing.......[/yellow]\n")
+    # Todo : Give the user the choice of either editing all infos or just one info
+    # Todo : Then if user want to change one info go to Single change
+    # Todo : Then if user want to change all infos go to full change
+
+def delete_password():
+    printc("\t\t[yellow]Deleting the password is proccessing.......[/yellow]\n")
+    # Todo : connect to the database and execute a SQL query to delete this password from the valut table
+
+def password_infos(username, email, master_passwrd):
+    printc("\t\t[yellow]Password infos is proccessing.......[/yellow]\n")
+    # Todo : connect to the database with the account key: 
+    # Todo : grap the password from it 
+    # Todo : Display all the password infos : 
+        # Todo :         [ Platform name ]
+        # Todo : Url 
+        # Todo : Username
+        # Todo : Email
+        # Todo : Password
+        # Todo :       [0] Exit     [1] Edite
+        # Todo :              [2] Delete
+    # Todo : DO some logic based on that value
+        # Todo : Make sure the value it's int and [0, 2]
+        # Todo : If value = 0 Go back to vault
+        # Todo : If value = 1 Go to Edite
+        # Todo : If value = 2 Go to Delete
+
+
 def vault(username, email, master_passwrd):
     printc("\t\t [red][ My Vault ][/red]\n\n")
+    # TODO : Get all passwords related to this account
+        # Todo : First create an account key (hash[username + email + Master_pswd]) to access the vault
+        # Todo : Then create a SQL query to search for all passwords that has that key
+
+    # TODO : Display them to user as an ordered list to chose from
+        # Todo : loop through and display them all [nbr platform url username email password]
+        # Todo : At the bottom [0] Exit
+
+    # TODO : Take the value chosen by user
+        # Todo : Take it and proccess it i.e. must be int and within the n passwords we have [0, n]
+
+    # TODO : DO some logic based on that value
+        # Todo : If 0 return to account menu
+        # Todo : If n != 0 Go to Password info
+            # Todo : Where user can Delete or modify the password infos
 
 def add_new_platform_to_vault(username, email, master_passwrd):
     printc("\t\t[yellow]Adding a new password is proccessing.......[/yellow]\n")
+    # Todo : First get the account key from the database or just create it(hash[username + email + Master_pswd]) to access the vault
+    # Todo : Then take user data(platform_name, url, ....etc)
+    # Todo : Then connect to the database and execute a SQL query to add this infos as a new row in the vault
+    # Todo : Then say it is successfully done and Go to Vault page with the new password added to it 
+
 
 # This function shows the application menu to see, edite, delete and add passwords
 def account_menu(username, email, master_passwrd):
