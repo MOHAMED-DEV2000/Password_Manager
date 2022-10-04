@@ -128,10 +128,13 @@ def platform_infos(account_id, platform_name):
     db_cursor.execute(get_platform_infos_query, (account_id, platform_name))
     get_platform_infos = db_cursor.fetchone()
 
-    # Todo : Display all the password infos : 
+    # Todo : Display all the password infos :
+    platform_infos = {1: '', 2: '', 3: '', 4: ''}
     for row in get_platform_infos:
         printc(row)
-        # printc(f"\t\t[ {Platform name} ]\n\n")
+        platform_infos = row
+        printc(platform_infos)
+        # printc(f"\t\t[ {platform_name} ]\n\n")
         # printc(f"\tURL: {}\n")
         # printc(f"\tUsername: {}\n")
         # printc(f"\tEmail: {}\n")
@@ -155,15 +158,26 @@ def must_be_in_platform_list(val, platform_counter):
         return int(val)
     return int(val)
 
+def convertTuple(tup):
+    # initialize an empty string
+    str = ''
+    for item in tup:
+        str = str + item
+    return str
+
 def vault(username, email, master_passwrd):
-    printc("\t\t [red][ My Vault ][/red]\n\n")
     # Todo : Get all passwords related to this account
-    ## Todo : First get the account id
+    printc("\t\t [red][ My Vault ][/red]\n\n")
+    
     get_account_id_query = """SELECT account_id FROM accounts
         WHERE account_username = %s 
         AND account_email = %s
         LIMIT 1
-    """
+    """ ## Todo : First get the account id
+
+    get_platform_name__by_id_query = """SELECT platform_name FROM vault
+        WHERE account_id = %s
+    """ ## Todo : Then create a SQL query to search for all passwords that has that account id
     
     db = make_conncetion()
     db_cursor = db.cursor()
@@ -173,11 +187,6 @@ def vault(username, email, master_passwrd):
     account_id : int
     for row in get_account_id:
         account_id = row
-
-    ## Todo : Then create a SQL query to search for all passwords that has that account id
-    get_platform_name__by_id_query = """SELECT platform_name FROM vault
-        WHERE account_id = %s
-    """
     
     db_cursor.execute(get_platform_name__by_id_query, (account_id, ))
     get_platform_name = db_cursor.fetchall()
@@ -188,9 +197,10 @@ def vault(username, email, master_passwrd):
     row_nbr, platform_counter = 1, 0
     for row in get_platform_name:
         if row is not None:
+            Row = convertTuple(row)
+            printc(f"\t{row_nbr}) {Row}\n")
             platform_counter += 1
             list_of_platforms[row_nbr] = row
-        printc(f"\t{row_nbr}) {row}\n")
         row_nbr += 1
 
     if platform_counter == 0:
@@ -209,10 +219,11 @@ def vault(username, email, master_passwrd):
     # TODO : DO some logic based on that value
     ## Todo : If val == 0 return to account menu
     if val == 0:
+        cleanScreen()
         account_menu(username, email, master_passwrd)
     
     ## Todo : If val == n Go to Platform info of this n Where user can Delete or modify the password infos
-    platform_infos(account_id, list_of_platforms[val])
+    platform_infos(account_id, convertTuple(list_of_platforms[val]))
 
 def add_new_platform_to_vault(username, email, master_passwrd):
     # Todo : First get the account id from the database to access the vault
@@ -251,7 +262,7 @@ def add_new_platform_to_vault(username, email, master_passwrd):
     printc(f"\t[green]{platform_name} was successfully added to your vault .......[/green]\n")
     cleanScreen()
 
-    vault(username, email, master_passwrd)
+    account_menu(username, email, master_passwrd)
 
 # This function shows the application menu to see, edite, delete and add passwords
 def account_menu(username, email, master_passwrd):
@@ -267,9 +278,11 @@ def account_menu(username, email, master_passwrd):
     val = main.mustBeInMenu(val)
 
     if val == 1:
+        cleanScreen()
         vault(username, email, master_passwrd)
 
     elif val == 2:
+        cleanScreen()
         add_new_platform_to_vault(username, email, master_passwrd)
 
     elif val == 3:
