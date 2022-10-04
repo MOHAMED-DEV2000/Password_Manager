@@ -74,6 +74,11 @@ def login():
     #TODO Task: Page 1 make sure that we have the account in the database
     printc("\t\t\t[green][ Log in ][/green]\n")
 
+    # Todo : Add Forget password? function if it is chosen
+    # Take his email and send a verification message contains a random string of lenght = 5
+    # Print Verification code and wait him to enter what you sent in his email
+    # If it is correct let him reset his master password
+
     username = input("\tUsername:\t\t ")
     email = input("\tEmail:\t\t ")
     email = sign_up.email_verification(email)
@@ -102,59 +107,151 @@ def login():
     account_menu(username, email, master_passwrd)
 
 def edite_password():
-    printc("\t\t[yellow]Editing the password is proccessing.......[/yellow]\n")
     # Todo : Give the user the choice of either editing all infos or just one info
     # Todo : Then if user want to change one info go to Single change
     # Todo : Then if user want to change all infos go to full change
+    printc("\t\t[yellow]Editing the password is proccessing.......[/yellow]\n")
 
 def delete_password():
-    printc("\t\t[yellow]Deleting the password is proccessing.......[/yellow]\n")
     # Todo : connect to the database and execute a SQL query to delete this password from the valut table
+    printc("\t\t[yellow]Deleting the password is proccessing.......[/yellow]\n")
 
-def password_infos(username, email, master_passwrd):
-    printc("\t\t[yellow]Password infos is proccessing.......[/yellow]\n")
-    # Todo : connect to the database with the account key: 
-    # Todo : grap the password from it 
+def platform_infos(account_id, platform_name):
+    # Todo : connect to the database through the account id:
+    get_platform_infos_query = """SELECT platform_url, platform_username, platform_email, platform_password FROM vault
+        WHERE account_id = %s 
+        AND platform_name = %s
+    """
+    
+    db = make_conncetion()
+    db_cursor = db.cursor()
+    db_cursor.execute(get_platform_infos_query, (account_id, platform_name))
+    get_platform_infos = db_cursor.fetchone()
+
     # Todo : Display all the password infos : 
-        # Todo :         [ Platform name ]
-        # Todo : Url 
-        # Todo : Username
-        # Todo : Email
-        # Todo : Password
-        # Todo :       [0] Exit     [1] Edite
-        # Todo :              [2] Delete
+    for row in get_platform_infos:
+        printc(row)
+        # printc(f"\t\t[ {Platform name} ]\n\n")
+        # printc(f"\tURL: {}\n")
+        # printc(f"\tUsername: {}\n")
+        # printc(f"\tEmail: {}\n")
+        # printc(f"\tPassword: {}\n")
+        # printc("\t[0] Exit \t[1] Edite\n")
+        # printc("\t\t[2] Delete\n")
+
     # Todo : DO some logic based on that value
         # Todo : Make sure the value it's int and [0, 2]
         # Todo : If value = 0 Go back to vault
         # Todo : If value = 1 Go to Edite
         # Todo : If value = 2 Go to Delete
+    printc("\t\t[yellow]Password infos is proccessing.......[/yellow]\n")
 
+def must_be_in_platform_list(val, platform_counter):
+    platform_counter += 1
+    if val > platform_counter:
+        while val > platform_counter:
+            printc("\t[red]Please try again![/red]")
+            val = main.mustBeInt(input())
+        return int(val)
+    return int(val)
 
 def vault(username, email, master_passwrd):
     printc("\t\t [red][ My Vault ][/red]\n\n")
-    # TODO : Get all passwords related to this account
-        # Todo : First create an account key (hash[username + email + Master_pswd]) to access the vault
-        # Todo : Then create a SQL query to search for all passwords that has that key
+    # Todo : Get all passwords related to this account
+    ## Todo : First get the account id
+    get_account_id_query = """SELECT account_id FROM accounts
+        WHERE account_username = %s 
+        AND account_email = %s
+        LIMIT 1
+    """
+    
+    db = make_conncetion()
+    db_cursor = db.cursor()
+    db_cursor.execute(get_account_id_query, (username, email))
+    get_account_id = db_cursor.fetchone()
+
+    account_id : int
+    for row in get_account_id:
+        account_id = row
+
+    ## Todo : Then create a SQL query to search for all passwords that has that account id
+    get_platform_name__by_id_query = """SELECT platform_name FROM vault
+        WHERE account_id = %s
+    """
+    
+    db_cursor.execute(get_platform_name__by_id_query, (account_id, ))
+    get_platform_name = db_cursor.fetchall()
 
     # TODO : Display them to user as an ordered list to chose from
-        # Todo : loop through and display them all [nbr platform url username email password]
-        # Todo : At the bottom [0] Exit
+    ## Todo : loop through and display them all [nbr platform url username email password]
+    list_of_platforms = {}
+    row_nbr, platform_counter = 1, 0
+    for row in get_platform_name:
+        if row is not None:
+            platform_counter += 1
+            list_of_platforms[row_nbr] = row
+        printc(f"\t{row_nbr}) {row}\n")
+        row_nbr += 1
+
+    if platform_counter == 0:
+        printc("\t[yellow]No platform has been added yet![/yellow]")
+        cleanScreen()
+
+        account_menu(username, email, master_passwrd)
+        
+    printc("\t\t[0] Exit\n")
 
     # TODO : Take the value chosen by user
-        # Todo : Take it and proccess it i.e. must be int and within the n passwords we have [0, n]
-
+    ## Todo : Take it and proccess it i.e. must be int and within the n passwords we have [0, n]
+    val = main.mustBeInt(input())
+    val = must_be_in_platform_list(val, row_nbr)
+    
     # TODO : DO some logic based on that value
-        # Todo : If 0 return to account menu
-        # Todo : If n != 0 Go to Password info
-            # Todo : Where user can Delete or modify the password infos
+    ## Todo : If val == 0 return to account menu
+    if val == 0:
+        account_menu(username, email, master_passwrd)
+    
+    ## Todo : If val == n Go to Platform info of this n Where user can Delete or modify the password infos
+    platform_infos(account_id, list_of_platforms[val])
 
 def add_new_platform_to_vault(username, email, master_passwrd):
-    printc("\t\t[yellow]Adding a new password is proccessing.......[/yellow]\n")
-    # Todo : First get the account key from the database or just create it(hash[username + email + Master_pswd]) to access the vault
-    # Todo : Then take user data(platform_name, url, ....etc)
-    # Todo : Then connect to the database and execute a SQL query to add this infos as a new row in the vault
-    # Todo : Then say it is successfully done and Go to Vault page with the new password added to it 
+    # Todo : First get the account id from the database to access the vault
+    get_account_id_query = """SELECT account_id FROM accounts
+        WHERE account_username = %s 
+        AND account_email = %s
+        LIMIT 1
+    """
+    add_platform_query = """INSERT INTO vault (platform_name, platform_url, platform_username, platform_email, platform_password, account_id)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    
+    db = make_conncetion()
+    db_cursor = db.cursor()
+    db_cursor.execute(get_account_id_query, (username, email))
+    get_account_id = db_cursor.fetchone()
 
+    account_id : int
+    for row in get_account_id:
+        account_id = row
+
+    # Todo : Then take user data(platform_name, url, ....etc)
+    printc("\t\t[green][ New platform ][/green]\n\n")
+    platform_name = input("\tPlatform name: \n")
+    platform_url = input("\tURL: \n")
+    platform_username = input("\tUsername: \n")
+    platform_email = input("\tEmail: \n")
+    platform_password = getpass("\tPassword: \n")
+
+    # Todo : Then connect to the database and execute a SQL query to add this infos as a new row in the vault
+    db_cursor.execute(add_platform_query, (platform_name, platform_url, platform_username, platform_email, platform_password, account_id))
+    db.commit()
+    db.close()
+
+    # Todo : Then say it is successfully done and Go to Vault page with the new password added to it 
+    printc(f"\t[green]{platform_name} was successfully added to your vault .......[/green]\n")
+    cleanScreen()
+
+    vault(username, email, master_passwrd)
 
 # This function shows the application menu to see, edite, delete and add passwords
 def account_menu(username, email, master_passwrd):
