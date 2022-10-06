@@ -116,38 +116,65 @@ def delete_password():
     # Todo : connect to the database and execute a SQL query to delete this password from the valut table
     printc("\t\t[yellow]Deleting the password is proccessing.......[/yellow]\n")
 
-def platform_infos(account_id, platform_name):
+def platform_infos(account_id, platform_name, username, email, master_passwrd):
+    def mustBeInMenu(val):
+        if val != 0 and val != 1 and val != 2:
+            while val != 0 and val != 1 and val != 2:
+                printc("\t[red]Please try again![/red]")
+                val = main.mustBeInt(input())
+            return int(val)
+        return int(val)
+
     # Todo : connect to the database through the account id:
-    get_platform_infos_query = """SELECT platform_url, platform_username, platform_email, platform_password FROM vault
-        WHERE account_id = %s 
-        AND platform_name = %s
-    """
-    
+    get_platform_url_query = """SELECT platform_url FROM vault WHERE account_id = %s AND platform_name = %s"""
+    get_platform_username_query = """SELECT platform_username FROM vault WHERE account_id = %s AND platform_name = %s"""
+    get_platform_email_query = """SELECT platform_email FROM vault WHERE account_id = %s AND platform_name = %s"""
+    get_platform_password_query = """SELECT platform_password FROM vault WHERE account_id = %s AND platform_name = %s"""
+
     db = make_conncetion()
     db_cursor = db.cursor()
-    db_cursor.execute(get_platform_infos_query, (account_id, platform_name))
-    get_platform_infos = db_cursor.fetchone()
+
+    db_cursor.execute(get_platform_url_query, (account_id, platform_name))
+    get_platform_url = db_cursor.fetchone()
+    platform_url = ''.join([row for row in get_platform_url])
+
+    db_cursor.execute(get_platform_username_query, (account_id, platform_name))
+    get_platform_username = db_cursor.fetchone()
+    platform_username = ''.join([row for row in get_platform_username])
+
+    db_cursor.execute(get_platform_email_query, (account_id, platform_name))
+    get_platform_email = db_cursor.fetchone()
+    platform_email = ''.join([row for row in get_platform_email])
+
+    db_cursor.execute(get_platform_password_query, (account_id, platform_name))
+    get_platform_password = db_cursor.fetchone()
+    platform_password = ''.join([row for row in get_platform_password])
 
     # Todo : Display all the password infos :
-    platform_infos = {1: '', 2: '', 3: '', 4: ''}
-    for row in get_platform_infos:
-        printc(row)
-        platform_infos = row
-        printc(platform_infos)
-        # printc(f"\t\t[ {platform_name} ]\n\n")
-        # printc(f"\tURL: {}\n")
-        # printc(f"\tUsername: {}\n")
-        # printc(f"\tEmail: {}\n")
-        # printc(f"\tPassword: {}\n")
-        # printc("\t[0] Exit \t[1] Edite\n")
-        # printc("\t\t[2] Delete\n")
+    cleanScreen()
+    printc(f"\n\t\t[yellow][ {platform_name} ][/yellow]\n\n")
+    printc(f"\t[green]URL:[/green] {platform_url}\n")
+    printc(f"\t[green]Username:[/green] {platform_username}\n")
+    printc(f"\t[green]Email:[/green] {platform_email}\n")
+    printc(f"\t[green]Password:[/green] {platform_password}\n")
+    printc("    [0] [green]Exit[/green] \t[1] [yellow]Edite[/yellow] \t[2] [red]Delete[/red]\n")
 
-    # Todo : DO some logic based on that value
-        # Todo : Make sure the value it's int and [0, 2]
-        # Todo : If value = 0 Go back to vault
-        # Todo : If value = 1 Go to Edite
-        # Todo : If value = 2 Go to Delete
-    printc("\t\t[yellow]Password infos is proccessing.......[/yellow]\n")
+    val = main.mustBeInt(input())
+    val = mustBeInMenu(val)
+
+    if val == 0:
+        printc("\t[yellow]Returning to My Vault .......[/yellow]")
+        cleanScreen()
+        vault(username, email, master_passwrd)
+
+    elif val == 1:
+        cleanScreen()
+        edite_password()
+
+    elif val == 2:
+        cleanScreen()
+        delete_password()
+
 
 def must_be_in_platform_list(val, platform_counter):
     platform_counter += 1
@@ -220,10 +247,11 @@ def vault(username, email, master_passwrd):
     ## Todo : If val == 0 return to account menu
     if val == 0:
         cleanScreen()
+        printc("\t[yellow]Returning to Account Menu .......[/yellow]")
         account_menu(username, email, master_passwrd)
     
     ## Todo : If val == n Go to Platform info of this n Where user can Delete or modify the password infos
-    platform_infos(account_id, convertTuple(list_of_platforms[val]))
+    platform_infos(account_id, convertTuple(list_of_platforms[val]), username, email, master_passwrd)
 
 def add_new_platform_to_vault(username, email, master_passwrd):
     # Todo : First get the account id from the database to access the vault
