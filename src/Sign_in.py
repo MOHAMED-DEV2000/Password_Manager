@@ -274,12 +274,12 @@ def add_new_platform_to_vault(username, email, master_passwrd):
         account_id = row
 
     # Todo : Then take user data(platform_name, url, ....etc)
-    printc("\t\t[green][ New platform ][/green]\n\n")
-    platform_name = input("\tPlatform name: \n")
-    platform_url = input("\tURL: \n")
-    platform_username = input("\tUsername: \n")
-    platform_email = input("\tEmail: \n")
-    platform_password = getpass("\tPassword: \n")
+    printc("\t\t[green][ New platform ][/green]\n")
+    platform_name = input("\n\tPlatform name: ")
+    platform_url = input("\n\tURL: ")
+    platform_username = input("\n\tUsername: ")
+    platform_email = input("\n\tEmail: ")
+    platform_password = getpass("\n\tPassword: ")
 
     # Todo : Then connect to the database and execute a SQL query to add this infos as a new row in the vault
     db_cursor.execute(add_platform_query, (platform_name, platform_url, platform_username, platform_email, platform_password, account_id))
