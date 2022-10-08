@@ -112,9 +112,20 @@ def edite_password():
     # Todo : Then if user want to change all infos go to full change
     printc("\t\t[yellow]Editing the password is proccessing.......[/yellow]\n")
 
-def delete_password():
-    # Todo : connect to the database and execute a SQL query to delete this password from the valut table
-    printc("\t\t[yellow]Deleting the password is proccessing.......[/yellow]\n")
+def delete_password(platform_id, platform_name, username, email, master_passwrd):
+    delete_platform_query = """DELETE FROM `password_manager`.`vault` WHERE (`password_id` = %s AND platform_name = %s)"""
+
+    db = make_conncetion()
+    db_cursor = db.cursor()
+
+    db_cursor.execute(delete_platform_query, (platform_id, platform_name))
+    printc("\t\t[green]The password was deleted successfully![/green]\n")
+    printc("\t\t[yellow]Returning to My Vault .......[/yellow]\n")
+    cleanScreen()
+
+    db.commit()
+    db.close()
+    vault(username, email, master_passwrd)
 
 def platform_infos(account_id, platform_name, username, email, master_passwrd):
     def mustBeInMenu(val):
@@ -126,6 +137,7 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
         return int(val)
 
     # Todo : connect to the database through the account id:
+    get_platform_id_query = """SELECT password_id FROM vault WHERE account_id = %s AND platform_name = %s"""
     get_platform_url_query = """SELECT platform_url FROM vault WHERE account_id = %s AND platform_name = %s"""
     get_platform_username_query = """SELECT platform_username FROM vault WHERE account_id = %s AND platform_name = %s"""
     get_platform_email_query = """SELECT platform_email FROM vault WHERE account_id = %s AND platform_name = %s"""
@@ -133,6 +145,12 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
 
     db = make_conncetion()
     db_cursor = db.cursor()
+
+    db_cursor.execute(get_platform_id_query, (account_id, platform_name))
+    get_platform_id = db_cursor.fetchone()
+    platform_id_as_list = [row for row in get_platform_id] # These three line for converting the id from a list to int
+    platform_id_as_str = "".join([str(i) for i in platform_id_as_list])
+    platform_id = int(platform_id_as_str)
 
     db_cursor.execute(get_platform_url_query, (account_id, platform_name))
     get_platform_url = db_cursor.fetchone()
@@ -173,9 +191,8 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
 
     elif val == 2:
         cleanScreen()
-        delete_password()
-
-
+        delete_password(platform_id, platform_name, username, email, master_passwrd)
+        
 def must_be_in_platform_list(val, platform_counter):
     platform_counter += 1
     if val > platform_counter:
@@ -294,7 +311,6 @@ def add_new_platform_to_vault(username, email, master_passwrd):
 
 # This function shows the application menu to see, edite, delete and add passwords
 def account_menu(username, email, master_passwrd):
-
     printc("\t\t [red] [ Menu ] [/red]\n")
     printc(f"\n\tWelcome back [green]{username}[/green]!\n")
     printc("\t1) My Vault")
