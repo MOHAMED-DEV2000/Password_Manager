@@ -13,9 +13,9 @@ def cleanScreen():
 
 # This function display a landing page
 def main():
-    console.print("\n\t\t [ MS Vault ]", style="bold red")
-    console.print("\tWelcome to your secure password manager! Log in\nor create your account to access your secret and secure vaulet.", style="bold green")
-    console.print("\n\t1) Log in\n\t2) Sign up\n\t3) Exit\n")
+    console.print("\n\t\t\t [ MS Vault ]", style="bold red")
+    console.print("\tWelcome to your secure password manager! Log in\nor create your account to access your secret and secure vaulet.", style="bold")
+    printc("\n\t[green][1] Log in[/green]\n\t[yellow][2] Sign up[/yellow]\n\t[red][3] Exit[/red]\n")
     val = input()
 
     return val
