@@ -2,11 +2,11 @@
 
 A password manager in python that allows users to store, generate, and manage their passwords for local applications and online services. A password manager assists in generating and retrieving complex passwords, storing such passwords in an encrypted database, or calculating them on demand.
 
-# Infrastructure
+# Infrastructure :
 
 MySQL is used to store passwords.
 
-# Requried Libraries
+# Requried Libraries :
 
 - os
 - functools
@@ -16,8 +16,8 @@ MySQL is used to store passwords.
 - mysql.connector
 - getpass
 - rich
-# What is does
 
+# What it does ?
 
-# How to use
+# How to use it ?
 <!-- I didn't finish yet -->
