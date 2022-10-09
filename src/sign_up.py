@@ -69,12 +69,9 @@ def create_account():
 
     printc("\n\n\t\t  [green][ Create an account ][/green]\n\n")
 
-    # Taking data from user(username, email, Master password)
-    username = input("\tUsername: ")
-    username  = username_verification(username)
-
-    email = input("\tEmail: ")
-    email = email_verification(email) # verify that email has the correct format
+    # Taking data from user(username, email, Master password) 
+    username  = username_verification(input("\tUsername: "))
+    email = email_verification(input("\tEmail: ")) # verify that email has the correct format
 
     master_pswrd = getpass("\tCreate a master password: ")
     pswrd_confirm = getpass("\tConform your master password: ")

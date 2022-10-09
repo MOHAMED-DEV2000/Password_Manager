@@ -45,7 +45,7 @@ def is_user_exist(username, email):
 
     if accounts_counter != 0:
         return True
-    return False 
+    return False
 
 # This function checks if the password given by user matches the account password
 def master_pwd_authentication(username, email, MasterPswd):
@@ -119,42 +119,29 @@ def login():
         cleanScreen()
         account_menu(username, email, master_passwrd)
 
-# This function modifies the infos related to a password
-def edite_password():
-    # Todo : Give the user the choice of either editing all infos or just one info
-    # Todo : Then if user want to change one info go to Single change
-    # Todo : Then if user want to change all infos go to full change
-    printc("\t\t[yellow]Editing the password is proccessing.......[/yellow]\n")
+# This function shows the application menu to see, edite, delete and add passwords
+def account_menu(username, email, master_passwrd):
+    printc("\t\t [red] [ Menu ] [/red]\n")
+    printc(f"\n\tWelcome back [green]{username}[/green]!\n")
+    printc("\t[0] My Vault")
+    printc("\t[1] Add a password")
+    printc("\t[2] Exit\n\t")
 
-# This function deletes a password from the account vault
-def delete_password(platform_id, platform_name, username, email, master_passwrd):
+    val = main.mustBeInMenu(main.mustBeInt(input()))
 
-    # Todo : add a deletion verification query to be sure the password was deleted
-    verify_deletion_query = """SELECT COUNT(*) FROM vault
-        WHERE password_id = %s AND platform_name = %s
-    """
-    delete_platform_query = """DELETE FROM `password_manager`.`vault` 
-        WHERE (`password_id` = %s AND platform_name = %s)
-    """
+    if val == 0:
+        cleanScreen()
+        vault(username, email, master_passwrd)
 
-    db = make_conncetion()
-    db_cursor = db.cursor()
-    db_cursor.execute(delete_platform_query, (platform_id, platform_name))
-    db.commit()
-    db_cursor.execute(verify_deletion_query, (platform_id, platform_name))
+    elif val == 1:
+        cleanScreen()
+        add_new_platform_to_vault(username, email, master_passwrd)
 
-    platforms_counter = int(' '.join([str(elem) for elem in db_cursor.fetchone()]))
+    elif val == 2:
+        printc("\t\t[yellow]Returing to home page .........[/yellow]\n")
+        cleanScreen()
 
-    if platforms_counter != 0:
-        # printc("\tThrough some ERROR message for you not for user or run some code to make sure deletion is Done!\n")
-        pass
-    
-    printc("\t\t[green]The password was deleted successfully![/green]\n")
-    printc("\t\t[yellow]Returning to My Vault .......[/yellow]\n")
-    cleanScreen()
-
-    db.close()
-    vault(username, email, master_passwrd)
+        main.inputProccessing()
 
 # This function shows all details that are related a password
 def platform_infos(account_id, platform_name, username, email, master_passwrd):
@@ -198,10 +185,9 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
     printc(f"\t[green]Username:[/green] {platform_username}\n")
     printc(f"\t[green]Email:[/green] {platform_email}\n")
     printc(f"\t[green]Password:[/green] {platform_password}\n")
-    printc("    [0] [green]Exit[/green] \t[1] [yellow]Edite[/yellow] \t[2] [red]Delete[/red]\n")
+    printc("    [0] [green]Exit[/green] \t[1] [yellow]Edit[/yellow] \t[2] [red]Delete[/red]\n")
 
-    val = main.mustBeInt(input())
-    val = main.mustBeInMenu(val)
+    val = main.mustBeInMenu(main.mustBeInt(input()))
 
     if val == 0:
         printc("\t[yellow]Returning to My Vault .......[/yellow]")
@@ -210,7 +196,7 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
 
     elif val == 1:
         cleanScreen()
-        edite_password()
+        edit_password(username, email, master_passwrd)
 
     elif val == 2:
         value = input("Are you sure you want to delete this password from your vault?(Y/N)\n").lower()
@@ -266,7 +252,7 @@ def vault(username, email, master_passwrd):
         if row is not None:
             # Row = convertTuple(row)
             Row = ''.join([i for i in row])
-            printc(f"\t{row_nbr}) {Row}\n")
+            printc(f"\t[{row_nbr}] {Row}\n")
             platform_counter += 1
             list_of_platforms[row_nbr] = row
         row_nbr += 1
@@ -295,6 +281,55 @@ def vault(username, email, master_passwrd):
     platform = ''.join([i for i in list_of_platforms[val]])
     platform_infos(account_id, platform, username, email, master_passwrd)
 
+# This function deletes a password from the account vault
+def delete_password(platform_id, platform_name, username, email, master_passwrd):
+
+    # Todo : add a deletion verification query to be sure the password was deleted
+    verify_deletion_query = """SELECT COUNT(*) FROM vault
+        WHERE password_id = %s AND platform_name = %s
+    """
+    delete_platform_query = """DELETE FROM `password_manager`.`vault` 
+        WHERE (`password_id` = %s AND platform_name = %s)
+    """
+
+    db = make_conncetion()
+    db_cursor = db.cursor()
+    db_cursor.execute(delete_platform_query, (platform_id, platform_name))
+    db.commit()
+    db_cursor.execute(verify_deletion_query, (platform_id, platform_name))
+
+    platforms_counter = int(' '.join([str(elem) for elem in db_cursor.fetchone()]))
+
+    if platforms_counter != 0:
+        # printc("\tThrough some ERROR message for you not for user or run some code to make sure deletion is Done!\n")
+        pass
+    
+    printc("\t\t[green]The password was deleted successfully![/green]\n")
+    printc("\t\t[yellow]Returning to My Vault .......[/yellow]\n")
+    cleanScreen()
+
+    db.close()
+    vault(username, email, master_passwrd)
+
+# This function modifies the infos related to a password
+def edit_password(username, email, master_passwrd):
+    
+    printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
+    printc("\n[0] Edit all \t [1] Single Edit\n")
+    user_choice = main.mustBe0or1(main.mustBeInt(input()))
+
+    if user_choice == 0:
+        # edit_all_paswrd_infos()
+        pass
+    elif user_choice == 1:
+        # printc("\t[1] pswrd \n [2] Email ....")
+        # edite(selected_data)
+        pass
+
+    # Todo : Then if user want to change all infos go to full change
+    printc("\t\t[yellow]Editing the password is proccessing.......[/yellow]\n")
+
+# This function adds a new password to user account vault
 def add_new_platform_to_vault(username, email, master_passwrd):
     # Todo : First get the account id from the database to access the vault
     get_account_id_query = """SELECT account_id FROM accounts
@@ -320,7 +355,7 @@ def add_new_platform_to_vault(username, email, master_passwrd):
     platform_name = input("\n\tPlatform name: ")
     platform_url = input("\n\tURL: ")
     platform_username = input("\n\tUsername: ")
-    platform_email = input("\n\tEmail: ")
+    platform_email = sign_up.email_verification(input("\n\tEmail: "))
     platform_password = getpass("\n\tPassword: ")
 
     # Todo : Then connect to the database and execute a SQL query to add this infos as a new row in the vault
@@ -334,28 +369,5 @@ def add_new_platform_to_vault(username, email, master_passwrd):
 
     account_menu(username, email, master_passwrd)
 
-# This function shows the application menu to see, edite, delete and add passwords
-def account_menu(username, email, master_passwrd):
-    printc("\t\t [red] [ Menu ] [/red]\n")
-    printc(f"\n\tWelcome back [green]{username}[/green]!\n")
-    printc("\t0) My Vault")
-    printc("\t1) Add a password")
-    printc("\t2) Exit\n\t")
 
-    val = input()
-    val = main.mustBeInt(val)
-    val = main.mustBeInMenu(val)
 
-    if val == 0:
-        cleanScreen()
-        vault(username, email, master_passwrd)
-
-    elif val == 1:
-        cleanScreen()
-        add_new_platform_to_vault(username, email, master_passwrd)
-
-    elif val == 2:
-        printc("\t\t[yellow]Returing to home page .........[/yellow]\n")
-        cleanScreen()
-
-        main.inputProccessing()
