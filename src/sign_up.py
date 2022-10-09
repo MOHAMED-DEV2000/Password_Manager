@@ -1,24 +1,28 @@
+# importing the os, argon2, time, rich and getpass libraries
 import os
+import argon2
 from getpass import getpass
 from time import sleep
 from rich import print as printc
 from rich.console import Console
-import argon2
+
+# importing the local modules
 import main
 from dbConfig import make_conncetion
 
+# Creating the required objects
+argon2_hasher_obj = argon2.PasswordHasher(
 
-argon2Hasher = argon2.PasswordHasher(
-    time_cost=3, # number of iterations
-    memory_cost=64 * 1024, # 64mb
-    parallelism=1, # how many parallel threads to use
-    hash_len=32, # the size of the derived key
-    salt_len=16 # the size of the random generated salt in bytes
+        time_cost = 3, # number of iterations
+        memory_cost = 64 * 1024, # 64mb
+        parallelism = 1, # how many parallel threads to use
+        hash_len = 32, # the size of the derived key
+        salt_len = 16 # the size of the random generated salt in bytes
 )
 console = Console()
 
 def cleanScreen():
-    sleep(1.2)
+    sleep(1.1)
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def username_verification(username: str) -> str:
@@ -75,7 +79,7 @@ def create_account():
     master_pswrd = getpass("\tCreate a master password: ")
     pswrd_confirm = getpass("\tConform your master password: ")
     password_verification(master_pswrd, pswrd_confirm) # verify that 1st password is same as the 2nd one
-    hash = argon2Hasher.hash(master_pswrd)
+    hash = argon2_hasher_obj.hash(master_pswrd)
 
     printc("\n\t[0]-Exit \t[1]-Register")
     val = input()

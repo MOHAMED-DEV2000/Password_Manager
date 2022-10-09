@@ -6,7 +6,7 @@ console = Console()
 
 # This function makes a connection to the password_manger database
 
-
+# Todo : later on automate adding the attrs of this function
 def make_conncetion():
     try:
         db = mysql.connector.connect(

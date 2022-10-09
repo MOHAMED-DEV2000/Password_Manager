@@ -1,91 +1,103 @@
+# importing the os, argon2, time, rich and getpass libraries
 import os
-import main
 import argon2
-import sign_up
-from dbConfig import make_conncetion
+from getpass import getpass
 from time import sleep
 from rich import print as printc
 from rich.console import Console
-from getpass import getpass
 
-argon2Hasher = argon2.PasswordHasher(
-    time_cost = 3, # number of iterations
-    memory_cost = 64 * 1024, # 64mb
-    parallelism = 1, # how many parallel threads to use
-    hash_len = 32, # the size of the derived key
-    salt_len = 16 # the size of the random generated salt in bytes
+# importing the local modules
+import main
+import sign_up
+from dbConfig import make_conncetion
+
+# Creating the required objects
+argon2_hasher_obj = argon2.PasswordHasher(
+
+        time_cost = 3, # number of iterations
+        memory_cost = 64 * 1024, # 64mb
+        parallelism = 1, # how many parallel threads to use
+        hash_len = 32, # the size of the derived key
+        salt_len = 16 # the size of the random generated salt in bytes
 )
 console = Console()
 
-
+# This function clears the command line prompt
 def cleanScreen():
-    sleep(2)
+
+    sleep(1.1)
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def isUserExist(username, email):
+# This function checks if the account the user wants to log in exist or not
+def is_user_exist(username, email):
+
     search_query = """SELECT COUNT(*) FROM accounts
         WHERE account_username = %s 
         AND account_email = %s 
         """
+
     db = make_conncetion()
     db_cursor = db.cursor()
     db_cursor.execute(search_query, (username, email))
-    counter = db_cursor.fetchone()
 
-    str_counter = ' '.join([str(elem) for elem in counter])
-    int_counter = int(str_counter)
+    # counting the accounts that has the same username & email the user inputed 
+    accounts_counter = int(' '.join([str(elem) for elem in db_cursor.fetchone()]))
 
-    if int_counter != 0:
+    if accounts_counter != 0:
         return True
     return False 
 
-def pwdAuthentication(username, email, MasterPswd):
+# This function checks if the password given by user matches the account password
+def master_pwd_authentication(username, email, MasterPswd):
 
     get_stored_hash = """SELECT account_hash FROM accounts 
         WHERE account_username = %s
         AND account_email = %s
         LIMIT 1 
         """
+
     db = make_conncetion()
     db_cursor = db.cursor()
     db_cursor.execute(get_stored_hash, (username, email))
-    StrdAccountHash = db_cursor.fetchone()
 
-    strdAccountHash = ''
-    for row in StrdAccountHash:
-        strdAccountHash = row
+    account_hash = ''.join([row for row in db_cursor.fetchone()])
 
     try:
-        areTheyMatch = argon2Hasher.verify(strdAccountHash, MasterPswd)
-        return areTheyMatch
+        # Campare the hash of the password given by user & the account hash
+        are_they_a_match = argon2_hasher_obj.verify(account_hash, MasterPswd)
+        return are_they_a_match
+
     except (Exception, argon2.exceptions.VerifyMismatchError):
+        # Making sure the user gives the right master password
         while True:
             printc("\n\t[red] password isn't corresct try again! [/red]\n")
             cleanScreen()
             
             printc("\t\t\t[green][ Password Verification ][/green]\n")
             master_passwrd = getpass("\tPassword:\t\t ")
-            areTheyMatch = pwdAuthentication(username, email, master_passwrd)
-            if areTheyMatch == True:
-                return areTheyMatch            
+            are_they_a_match = master_pwd_authentication(username, email, master_passwrd)
+
+            if are_they_a_match == True:
+                return are_they_a_match            
 
 # This function logs in into your personnel vaulet account
 def login():
-    #TODO Task: Page 1 make sure that we have the account in the database
-    printc("\t\t\t[green][ Log in ][/green]\n")
-
+    
     # Todo : Add Forget password? function if it is chosen
-    # Take his email and send a verification message contains a random string of lenght = 5
-    # Print Verification code and wait him to enter what you sent in his email
-    # If it is correct let him reset his master password
-
+    """ Take his email and send a verification message contains a random string of lenght = 5
+    Print Verification code and wait him to enter what you sent in his email
+    If it is correct let him reset his master password."""
+    
+    # Checking if the account exist
+    printc("\t\t\t[green][ Log in ][/green]\n")
     username = input("\tUsername:\t\t ")
     email = input("\tEmail:\t\t ")
     email = sign_up.email_verification(email)
-    IsUserExit = isUserExist(username, email)
+    is_exist = is_user_exist(username, email)
     
-    if IsUserExit != True:
-            while IsUserExit != True:
+    if is_exist != True:
+            while is_exist != True:
+                        # ERROR MESSAGE FOR THE USER
                         printc("\n\t[yellow]No account has been found![/yellow]")
                         printc("\t[red]Please try again![/red]")
                         cleanScreen()
@@ -94,47 +106,58 @@ def login():
                         username = input("\tUsername:\t\t ")
                         email = input("\tEmail:\t\t ")
                         email = sign_up.email_verification(email)
-                        IsUserExit = isUserExist(username, email)
+                        is_exist = is_user_exist(username, email)
 
     cleanScreen()
 
-    #TODO Task: Page 2 make sure that the master password is correct
+    # Checking if the master password is correct
     printc("\t\t\t[green][ Password Verification ][/green]\n")
     master_passwrd = getpass("\tPassword:\t\t ")           
-    isValid = pwdAuthentication(username, email, master_passwrd)
+    is_master_pswrd_valid = master_pwd_authentication(username, email, master_passwrd)
     
-    cleanScreen()
-    account_menu(username, email, master_passwrd)
+    if is_master_pswrd_valid:
+        cleanScreen()
+        account_menu(username, email, master_passwrd)
 
+# This function modifies the infos related to a password
 def edite_password():
     # Todo : Give the user the choice of either editing all infos or just one info
     # Todo : Then if user want to change one info go to Single change
     # Todo : Then if user want to change all infos go to full change
     printc("\t\t[yellow]Editing the password is proccessing.......[/yellow]\n")
 
+# This function deletes a password from the account vault
 def delete_password(platform_id, platform_name, username, email, master_passwrd):
-    delete_platform_query = """DELETE FROM `password_manager`.`vault` WHERE (`password_id` = %s AND platform_name = %s)"""
+
+    # Todo : add a deletion verification query to be sure the password was deleted
+    verify_deletion_query = """SELECT COUNT(*) FROM vault
+        WHERE password_id = %s AND platform_name = %s
+    """
+    delete_platform_query = """DELETE FROM `password_manager`.`vault` 
+        WHERE (`password_id` = %s AND platform_name = %s)
+    """
 
     db = make_conncetion()
     db_cursor = db.cursor()
-
     db_cursor.execute(delete_platform_query, (platform_id, platform_name))
+    db.commit()
+    db_cursor.execute(verify_deletion_query, (platform_id, platform_name))
+
+    platforms_counter = int(' '.join([str(elem) for elem in db_cursor.fetchone()]))
+
+    if platforms_counter != 0:
+        # printc("\tThrough some ERROR message for you not for user or run some code to make sure deletion is Done!\n")
+        pass
+    
     printc("\t\t[green]The password was deleted successfully![/green]\n")
     printc("\t\t[yellow]Returning to My Vault .......[/yellow]\n")
     cleanScreen()
 
-    db.commit()
     db.close()
     vault(username, email, master_passwrd)
 
+# This function shows all details that are related a password
 def platform_infos(account_id, platform_name, username, email, master_passwrd):
-    def mustBeInMenu(val):
-        if val != 0 and val != 1 and val != 2:
-            while val != 0 and val != 1 and val != 2:
-                printc("\t[red]Please try again![/red]")
-                val = main.mustBeInt(input())
-            return int(val)
-        return int(val)
 
     # Todo : connect to the database through the account id:
     get_platform_id_query = """SELECT password_id FROM vault WHERE account_id = %s AND platform_name = %s"""
@@ -178,7 +201,7 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
     printc("    [0] [green]Exit[/green] \t[1] [yellow]Edite[/yellow] \t[2] [red]Delete[/red]\n")
 
     val = main.mustBeInt(input())
-    val = mustBeInMenu(val)
+    val = main.mustBeInMenu(val)
 
     if val == 0:
         printc("\t[yellow]Returning to My Vault .......[/yellow]")
@@ -190,9 +213,15 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
         edite_password()
 
     elif val == 2:
+        value = input("Are you sure you want to delete this password from your vault?(Y/N)\n").lower()
+        if value.startswith("n"):
+            cleanScreen()
+            platform_infos(account_id, platform_name, username, email, master_passwrd)
+
         cleanScreen()
         delete_password(platform_id, platform_name, username, email, master_passwrd)
-        
+
+# This function make sure the value inputed is within the range of paltform nbrs list
 def must_be_in_platform_list(val, platform_counter):
     platform_counter += 1
     if val > platform_counter:
@@ -202,13 +231,7 @@ def must_be_in_platform_list(val, platform_counter):
         return int(val)
     return int(val)
 
-def convertTuple(tup):
-    # initialize an empty string
-    str = ''
-    for item in tup:
-        str = str + item
-    return str
-
+# This function showa a menu from where the user can chose what to do in his account
 def vault(username, email, master_passwrd):
     # Todo : Get all passwords related to this account
     printc("\t\t [red][ My Vault ][/red]\n\n")
@@ -241,7 +264,8 @@ def vault(username, email, master_passwrd):
     row_nbr, platform_counter = 1, 0
     for row in get_platform_name:
         if row is not None:
-            Row = convertTuple(row)
+            # Row = convertTuple(row)
+            Row = ''.join([i for i in row])
             printc(f"\t{row_nbr}) {Row}\n")
             platform_counter += 1
             list_of_platforms[row_nbr] = row
@@ -268,7 +292,8 @@ def vault(username, email, master_passwrd):
         account_menu(username, email, master_passwrd)
     
     ## Todo : If val == n Go to Platform info of this n Where user can Delete or modify the password infos
-    platform_infos(account_id, convertTuple(list_of_platforms[val]), username, email, master_passwrd)
+    platform = ''.join([i for i in list_of_platforms[val]])
+    platform_infos(account_id, platform, username, email, master_passwrd)
 
 def add_new_platform_to_vault(username, email, master_passwrd):
     # Todo : First get the account id from the database to access the vault
@@ -313,23 +338,23 @@ def add_new_platform_to_vault(username, email, master_passwrd):
 def account_menu(username, email, master_passwrd):
     printc("\t\t [red] [ Menu ] [/red]\n")
     printc(f"\n\tWelcome back [green]{username}[/green]!\n")
-    printc("\t1) My Vault")
-    printc("\t2) Add a password")
-    printc("\t3) Exit\n\t")
+    printc("\t0) My Vault")
+    printc("\t1) Add a password")
+    printc("\t2) Exit\n\t")
 
     val = input()
     val = main.mustBeInt(val)
     val = main.mustBeInMenu(val)
 
-    if val == 1:
+    if val == 0:
         cleanScreen()
         vault(username, email, master_passwrd)
 
-    elif val == 2:
+    elif val == 1:
         cleanScreen()
         add_new_platform_to_vault(username, email, master_passwrd)
 
-    elif val == 3:
+    elif val == 2:
         printc("\t\t[yellow]Returing to home page .........[/yellow]\n")
         cleanScreen()
 

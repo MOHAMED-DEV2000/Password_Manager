@@ -1,21 +1,28 @@
+# importing the os, time, rich and ast libraries
 import os
-import sign_up
-import sign_in
 from time import sleep
+from ast import literal_eval
 from rich import print as printc
 from rich.console import Console
-from ast import literal_eval
+
+# importing the local modules
+import sign_up
+import sign_in
+
+# Creating the required objects
 console = Console()
 
 def cleanScreen():
-    sleep(1.2)
+
+    sleep(1.1)
     os.system('cls' if os.name == 'nt' else 'clear')
 
 # This function display a landing page
-def main():
+def MS_vault_interface():
+
     console.print("\n\t\t\t [ MS Vault ]", style="bold red")
     console.print("\tWelcome to your secure password manager! Log in\nor create your account to access your secret and secure vaulet.", style="bold")
-    printc("\n\t[green][1] Log in[/green]\n\t[yellow][2] Sign up[/yellow]\n\t[red][3] Exit[/red]\n")
+    printc("\n\t[green][0] Log in[/green]\n\t[yellow][1] Sign up[/yellow]\n\t[red][2] Exit[/red]\n")
     val = input()
 
     return val
@@ -38,8 +45,8 @@ def mustBeInt(val):
 
 # This function makes sure it's within the range [1, 3]
 def mustBeInMenu(val):
-    if val != 1 and val != 2 and val != 3:
-        while val != 1 and val != 2 and val != 3:
+    if val != 0 and val != 1 and val != 2:
+        while val != 0 and val != 1 and val != 2:
             printc("\t[red]Please try again![/red]")
             val = mustBeInt(input())
         return int(val)
@@ -56,22 +63,22 @@ def mustBe0or1(val):
 
 # This function for the input proccessing operation
 def inputProccessing():
-    val = main()
+    val = MS_vault_interface()
 
     if val_type(val) != int:
         val = mustBeInt(val)
         val = mustBeInMenu(val)
     val = int(val)
     
-    if val == 1:
+    if val == 0:
         cleanScreen()
         sign_in.login()
 
-    elif val == 2:
+    elif val == 1:
         cleanScreen()
 
         sign_up.create_account()
-    elif val == 3:
+    elif val == 2:
         printc("\n\t\t[yellow]Exiting ..............[/yellow]")
         cleanScreen()
         
