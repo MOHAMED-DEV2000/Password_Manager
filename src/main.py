@@ -1,13 +1,4 @@
-# importing the os, time, rich and ast libraries
-import os
-from time import sleep
-from ast import literal_eval
-from rich import print as printc
-from rich.console import Console
-
-# importing the local modules
-import sign_up
-import sign_in
+from modules import *
 
 # Creating the required objects
 console = Console()

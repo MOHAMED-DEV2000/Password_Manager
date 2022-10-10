@@ -1,14 +1,4 @@
-# importing the os, argon2, time, rich and getpass libraries
-import os
-import argon2
-from getpass import getpass
-from time import sleep
-from rich import print as printc
-from rich.console import Console
-
-# importing the local modules
-import main
-from dbConfig import make_conncetion
+from modules import *
 
 # Creating the required objects
 argon2_hasher_obj = argon2.PasswordHasher(

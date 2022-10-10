@@ -1,6 +1,4 @@
-import mysql.connector
-from rich import print as printc
-from rich.console import Console
+from modules import *
 
 console = Console()
 

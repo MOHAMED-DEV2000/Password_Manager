@@ -1,15 +1,4 @@
-# importing the os, argon2, time, rich and getpass libraries
-import os
-import argon2
-from getpass import getpass
-from time import sleep
-from rich import print as printc
-from rich.console import Console
-
-# importing the local modules
-import main
-import sign_up
-from dbConfig import make_conncetion
+from modules import *
 
 # Creating the required objects
 argon2_hasher_obj = argon2.PasswordHasher(
@@ -151,11 +140,13 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
     get_platform_url_query = """SELECT platform_url FROM vault WHERE account_id = %s AND platform_name = %s"""
     get_platform_username_query = """SELECT platform_username FROM vault WHERE account_id = %s AND platform_name = %s"""
     get_platform_email_query = """SELECT platform_email FROM vault WHERE account_id = %s AND platform_name = %s"""
+    get_encryption_key_query = """SELECT encryption_key FROM vault WHERE account_id = %s AND platform_name = %s"""
     get_platform_password_query = """SELECT platform_password FROM vault WHERE account_id = %s AND platform_name = %s"""
 
     db = make_conncetion()
     db_cursor = db.cursor()
 
+    # Todo : Solve this TypeError: 'NoneType' object is not iterable in 'get_platform_id' i think
     db_cursor.execute(get_platform_id_query, (account_id, platform_name))
     get_platform_id = db_cursor.fetchone()
     platform_id_as_list = [row for row in get_platform_id] # These three line for converting the id from a list to int
@@ -176,7 +167,14 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
 
     db_cursor.execute(get_platform_password_query, (account_id, platform_name))
     get_platform_password = db_cursor.fetchone()
-    platform_password = ''.join([row for row in get_platform_password])
+    e_platform_password = ''.join([row for row in get_platform_password])
+
+    db_cursor.execute(get_encryption_key_query, (account_id, platform_name))
+    get_encryption_key = db_cursor.fetchone()
+    encryption_key = ''.join([row for row in get_encryption_key])
+
+    f_obj = Fernet(encryption_key)
+    platform_password = str(f_obj.decrypt(e_platform_password), 'utf-8')
 
     # Todo : Display all the password infos :
     cleanScreen()
@@ -250,7 +248,6 @@ def vault(username, email, master_passwrd):
     row_nbr, platform_counter = 1, 0
     for row in get_platform_name:
         if row is not None:
-            # Row = convertTuple(row)
             Row = ''.join([i for i in row])
             printc(f"\t[{row_nbr}] {Row}\n")
             platform_counter += 1
@@ -278,8 +275,15 @@ def vault(username, email, master_passwrd):
         account_menu(username, email, master_passwrd)
     
     ## Todo : If val == n Go to Platform info of this n Where user can Delete or modify the password infos
-    platform = ''.join([i for i in list_of_platforms[val]])
-    platform_infos(account_id, platform, username, email, master_passwrd)
+    try:
+        platform = ''.join([i for i in list_of_platforms[val]])
+        platform_infos(account_id, platform, username, email, master_passwrd)
+    except KeyError:
+        print('key does not exist in dict')
+        list_of_platforms[0] = ''
+        platform = ''.join([i for i in list_of_platforms[val]])
+        platform_infos(account_id, platform, username, email, master_passwrd)
+        
 
 # This function deletes a password from the account vault
 def delete_password(platform_id, platform_name, username, email, master_passwrd):
@@ -315,7 +319,7 @@ def delete_password(platform_id, platform_name, username, email, master_passwrd)
 def edit_password(username, email, master_passwrd):
     
     printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
-    printc("\n[0] Edit all \t [1] Single Edit\n")
+    printc("\n\t[0] Edit all \t [1] Single Edit\n")
     user_choice = main.mustBe0or1(main.mustBeInt(input()))
 
     if user_choice == 0:
@@ -337,8 +341,8 @@ def add_new_platform_to_vault(username, email, master_passwrd):
         AND account_email = %s
         LIMIT 1
     """
-    add_platform_query = """INSERT INTO vault (platform_name, platform_url, platform_username, platform_email, platform_password, account_id)
-        VALUES (%s, %s, %s, %s, %s, %s)
+    add_platform_query = """INSERT INTO vault (platform_name, platform_url, platform_username, platform_email, platform_password, encryption_key, account_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
     
     db = make_conncetion()
@@ -356,10 +360,13 @@ def add_new_platform_to_vault(username, email, master_passwrd):
     platform_url = input("\n\tURL: ")
     platform_username = input("\n\tUsername: ")
     platform_email = sign_up.email_verification(input("\n\tEmail: "))
-    platform_password = getpass("\n\tPassword: ")
+
+    key = Fernet.generate_key()
+    f_obj = Fernet(key)
+    platform_password = f_obj.encrypt(getpass("\n\tPassword: ").encode())
 
     # Todo : Then connect to the database and execute a SQL query to add this infos as a new row in the vault
-    db_cursor.execute(add_platform_query, (platform_name, platform_url, platform_username, platform_email, platform_password, account_id))
+    db_cursor.execute(add_platform_query, (platform_name, platform_url, platform_username, platform_email, platform_password, key, account_id))
     db.commit()
     db.close()
 
