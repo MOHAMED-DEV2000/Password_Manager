@@ -1,3 +1,4 @@
+import modules
 from modules import *
 
 # Creating the required objects
@@ -11,9 +12,9 @@ def cleanScreen():
 # This function display a landing page
 def MS_vault_interface():
 
-    console.print("\n\t\t\t [ MS Vault ]", style="bold red")
-    console.print("\tWelcome to your secure password manager! Log in\nor create your account to access your secret and secure vaulet.", style="bold")
-    printc("\n\t[green][0] Log in[/green]\n\t[yellow][1] Sign up[/yellow]\n\t[red][2] Exit[/red]\n")
+    console.print("\n\t\t\t [ Password Manager ]\n", style="bold red")
+    console.print("\t\tWelcome to your secure password manager!\n\tLog in or create your account to access your secret and secure vaulet.", style="bold")
+    printc("\n\t\t[green][0] Log in[/green] \t[yellow][1] Sign up[/yellow] \t [red][2] Exit[/red]\n\n")
     val = input()
 
     return val
@@ -63,12 +64,12 @@ def inputProccessing():
     
     if val == 0:
         cleanScreen()
-        sign_in.login()
+        modules.sign_in.login()
 
     elif val == 1:
         cleanScreen()
 
-        sign_up.create_account()
+        modules.sign_up.create_account()
     elif val == 2:
         printc("\n\t\t[yellow]Exiting ..............[/yellow]")
         cleanScreen()

@@ -194,7 +194,7 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
 
     elif val == 1:
         cleanScreen()
-        edit_password(username, email, master_passwrd)
+        edit_password(account_id, platform_name, username, email, master_passwrd)
 
     elif val == 2:
         value = input("Are you sure you want to delete this password from your vault?(Y/N)\n").lower()
@@ -284,7 +284,6 @@ def vault(username, email, master_passwrd):
         platform = ''.join([i for i in list_of_platforms[val]])
         platform_infos(account_id, platform, username, email, master_passwrd)
         
-
 # This function deletes a password from the account vault
 def delete_password(platform_id, platform_name, username, email, master_passwrd):
 
@@ -315,19 +314,24 @@ def delete_password(platform_id, platform_name, username, email, master_passwrd)
     db.close()
     vault(username, email, master_passwrd)
 
+def edit_all_paswrd_infos(account_id, platform_name, username, email, master_passwrd):
+    pass
+def  single_edite(data_to_edit, account_id, platform_name, username, email, master_passwrd):
+    pass
+
 # This function modifies the infos related to a password
-def edit_password(username, email, master_passwrd):
+def edit_password(account_id, platform_name, username, email, master_passwrd):
     
     printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
     printc("\n\t[0] Edit all \t [1] Single Edit\n")
     user_choice = main.mustBe0or1(main.mustBeInt(input()))
 
     if user_choice == 0:
-        # edit_all_paswrd_infos()
+        edit_all_paswrd_infos(account_id, platform_name, username, email, master_passwrd)
         pass
     elif user_choice == 1:
-        # printc("\t[1] pswrd \n [2] Email ....")
-        # edite(selected_data)
+        
+        single_edite(account_id, platform_name, username, email, master_passwrd)
         pass
 
     # Todo : Then if user want to change all infos go to full change
