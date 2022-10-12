@@ -305,43 +305,12 @@ def delete_password(platform_id, platform_name, username, email, master_passwrd)
 
     db.close()
     vault(username, email, master_passwrd)
-
-def edit(data_to_update, account_id, platform_name, username, email, master_passwrd):
-
-    update_item_query = "UPDATE vault SET %s = %s WHERE account_id = %s AND  %s = %s;"
-
-    data_label = data_to_update[1]
-    data = data_to_update[0]
-    
-    printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
-    printc(f"\n [green]New {data_label}: [/green]\t")
-    new_val = input()
-
-    printc("\t[0] Save \t [1] Cancel\n")
-    do_you_conform = main.mustBe0or1(main.mustBeInt(input()))
-    
-    if do_you_conform == 1:
-        printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
-        cleanScreen()
-        platform_infos(account_id, platform_name, username, email, master_passwrd)
-
-    db = make_conncetion()
-    db_cursor = db.cursor()
-
-    db_cursor.execute(update_item_query, (data_label, new_val, account_id, data_label, data))
-    
-    db.commit()
-    db.close()
-
-    printc(f"\n\t[green]The {data_label} was successfully edited![/green]\n")
-    printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
-    cleanScreen()
-    platform_infos(account_id, platform_name, username, email, master_passwrd)
     
 # This function modifies the infos related to a password
 def edit_password(platform_name, platform_url, platform_username, platform_email, platform_password, account_id, username, email, master_passwrd):
     
-    data_options = {1: [platform_name, 'platform_name'], 2: [platform_url, 'platform_url'], 3: [platform_username, 'platform_username'], 4: [platform_email, 'platform_email'], 5: [platform_password, 'platform_password']}
+    db = make_conncetion()
+    db_cursor = db.cursor()
 
     printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
     printc(f"\t[1] [green]{platform_name}[/green]\n")
@@ -354,12 +323,124 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
     selected_nbr = must_be_in_platform_list(main.mustBeInt(input()), 5)
 
     if selected_nbr == 0:
+
         printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
         cleanScreen()
         platform_infos(account_id, platform_name, username, email, master_passwrd)
+    elif selected_nbr == 1:
+
+        update_item_query = "UPDATE vault SET platform_name = %s WHERE account_id = %s AND  platform_name = %s"
+        
+        printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
+        printc(f"\n [green]New platform name: [/green]\t")
+        new_val = input()
+
+        printc("\t[0] Save \t [1] Cancel\n")
+        do_you_conform = main.mustBe0or1(main.mustBeInt(input()))
     
+        if do_you_conform == 1:
+            printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
+            cleanScreen()
+            platform_infos(account_id, platform_name, username, email, master_passwrd)
+
+        db_cursor.execute(update_item_query, (new_val, account_id, platform_name))
+    
+        db.commit()
+        db.close()
+
+        printc("\n\t[green]The platform name was successfully edited![/green]\n")
+    elif selected_nbr == 2:
+
+        update_item_query = "UPDATE vault SET platform_url = %s WHERE account_id = %s AND  platform_url = %s"
+        
+        printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
+        printc(f"\n [green]New platform name: [/green]\t")
+        new_val = input()
+
+        printc("\t[0] Save \t [1] Cancel\n")
+        do_you_conform = main.mustBe0or1(main.mustBeInt(input()))
+    
+        if do_you_conform == 1:
+            printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
+            cleanScreen()
+            platform_infos(account_id, platform_name, username, email, master_passwrd)
+
+        db_cursor.execute(update_item_query, (new_val, account_id, platform_url))
+    
+        db.commit()
+        db.close()
+
+        printc("\n\t[green]The platform url was successfully edited![/green]\n")
+    elif selected_nbr == 3:
+
+        update_item_query = "UPDATE vault SET platform_username = %s WHERE account_id = %s AND  platform_username = %s"
+        
+        printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
+        printc(f"\n [green]New platform name: [/green]\t")
+        new_val = input()
+
+        printc("\t[0] Save \t [1] Cancel\n")
+        do_you_conform = main.mustBe0or1(main.mustBeInt(input()))
+    
+        if do_you_conform == 1:
+            printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
+            cleanScreen()
+            platform_infos(account_id, platform_name, username, email, master_passwrd)
+
+        db_cursor.execute(update_item_query, (new_val, account_id, platform_username))
+    
+        db.commit()
+        db.close()
+
+        printc("\n\t[green]The platform username was successfully edited![/green]\n")
+    elif selected_nbr == 4:
+
+        update_item_query = "UPDATE vault SET platform_email = %s WHERE account_id = %s AND  platform_email = %s"
+        
+        printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
+        printc(f"\n [green]New platform name: [/green]\t")
+        new_val = input()
+
+        printc("\t[0] Save \t [1] Cancel\n")
+        do_you_conform = main.mustBe0or1(main.mustBeInt(input()))
+    
+        if do_you_conform == 1:
+            printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
+            cleanScreen()
+            platform_infos(account_id, platform_name, username, email, master_passwrd)
+
+        db_cursor.execute(update_item_query, (new_val, account_id, platform_email))
+    
+        db.commit()
+        db.close()
+
+        printc("\n\t[green]The platform email was successfully edited![/green]\n")
+    elif selected_nbr == 5:
+
+        update_item_query = "UPDATE vault SET platform_password = %s WHERE account_id = %s AND  platform_password = %s"
+        
+        printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
+        printc(f"\n [green]New platform name: [/green]\t")
+        new_val = input()
+
+        printc("\t[0] Save \t [1] Cancel\n")
+        do_you_conform = main.mustBe0or1(main.mustBeInt(input()))
+    
+        if do_you_conform == 1:
+            printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
+            cleanScreen()
+            platform_infos(account_id, platform_name, username, email, master_passwrd)
+
+        db_cursor.execute(update_item_query, (new_val, account_id, platform_password))
+        
+        db.commit()
+        db.close()
+
+        printc("\n\t[green]The platform password was successfully edited![/green]\n")
+    
+    printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
     cleanScreen()
-    edit(data_options[selected_nbr], account_id, platform_name, username, email, master_passwrd)
+    platform_infos(account_id, platform_name, username, email, master_passwrd)
 
 # This function adds a new password to user account vault
 def add_new_platform_to_vault(username, email, master_passwrd):
