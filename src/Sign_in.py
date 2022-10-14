@@ -110,7 +110,7 @@ def login():
 
 # This function shows the application menu to see, edite, delete and add passwords
 def account_menu(username, email, master_passwrd):
-    printc("\t\t [red] [ Menu ] [/red]\n")
+    printc("\t\t [green] [ Menu ] [/green]\n")
     printc(f"\n\tWelcome back [green]{username}[/green]!\n")
     printc("\t[0] My Vault")
     printc("\t[1] Add a password")
@@ -148,7 +148,8 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
 
     # Todo : Solve this TypeError: 'NoneType' object is not iterable in 'get_platform_id' i think
     db_cursor.execute(get_platform_id_query, (account_id, platform_name))
-    platform_id = int("".join([str(i) for i in [row for row in db_cursor.fetchone()]]))
+    get_platform_id = db_cursor.fetchone()
+    platform_id = int("".join([str(i) for i in [row for row in get_platform_id]]))
 
     db_cursor.execute(get_platform_url_query, (account_id, platform_name))
     platform_url = ''.join([row for row in db_cursor.fetchone()])
@@ -180,23 +181,31 @@ def platform_infos(account_id, platform_name, username, email, master_passwrd):
     val = main.mustBeInMenu(main.mustBeInt(input()))
 
     if val == 0:
+
         printc("\t[yellow]Returning to My Vault .......[/yellow]")
         cleanScreen()
         vault(username, email, master_passwrd)
 
     elif val == 1:
+
         cleanScreen()
         edit_password(platform_name, platform_url, platform_username, platform_email, platform_password, account_id, username, email, master_passwrd)
 
     elif val == 2:
-        value = input("Are you sure you want to delete this password from your vault?(Y/N)\n").lower()
-        if value.startswith("n"):
-            cleanScreen()
-            platform_infos(account_id, platform_name, username, email, master_passwrd)
+        
+        # Todo: Add later on confirmation question to delete this password from the user's vault
+        # value = main.must_be_y_or_n(main.must_be_str(input("Are you sure you want to delete this password from your vault?(Y/N)\n")))
 
-        cleanScreen()
+        # if value.startswith("y") == True:
+        #     cleanScreen()
+        #     delete_password(platform_id, platform_name, username, email, master_passwrd)
+
+        # elif value.startswith("n") == True:
+        #     cleanScreen()
+        #     platform_infos(account_id, platform_name, username, email, master_passwrd)
+
         delete_password(platform_id, platform_name, username, email, master_passwrd)
-
+        
 # This function make sure the value inputed is within the range of paltform nbrs list
 def must_be_in_platform_list(val, platform_counter):
     platform_counter += 1
@@ -262,8 +271,8 @@ def vault(username, email, master_passwrd):
     # TODO : DO some logic based on that value
     ## Todo : If val == 0 return to account menu
     if val == 0:
-        cleanScreen()
         printc("\t[yellow]Returning to Account Menu .......[/yellow]")
+        cleanScreen()
         account_menu(username, email, master_passwrd)
     
     ## Todo : If val == n Go to Platform info of this n Where user can Delete or modify the password infos
@@ -296,7 +305,7 @@ def delete_password(platform_id, platform_name, username, email, master_passwrd)
     platforms_counter = int(' '.join([str(elem) for elem in db_cursor.fetchone()]))
 
     if platforms_counter != 0:
-        # printc("\tThrough some ERROR message for you not for user or run some code to make sure deletion is Done!\n")
+        #Todo: printc("\tThrough some ERROR message for you not for user or run some code to make sure deletion is Done!\n")
         pass
     
     printc("\t\t[green]The password was deleted successfully![/green]\n")
@@ -309,9 +318,6 @@ def delete_password(platform_id, platform_name, username, email, master_passwrd)
 # This function modifies the infos related to a password
 def edit_password(platform_name, platform_url, platform_username, platform_email, platform_password, account_id, username, email, master_passwrd):
     
-    db = make_conncetion()
-    db_cursor = db.cursor()
-
     printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
     printc(f"\t[1] [green]{platform_name}[/green]\n")
     printc(f"\t[2] [green]{platform_url}[/green]\n")
@@ -323,16 +329,18 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
     selected_nbr = must_be_in_platform_list(main.mustBeInt(input()), 5)
 
     if selected_nbr == 0:
-
         printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
         cleanScreen()
         platform_infos(account_id, platform_name, username, email, master_passwrd)
+
+    # Todo: platform name
     elif selected_nbr == 1:
 
         update_item_query = "UPDATE vault SET platform_name = %s WHERE account_id = %s AND  platform_name = %s"
-        
+
+        cleanScreen()
         printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
-        printc(f"\n [green]New platform name: [/green]\t")
+        printc(f"\n [green]New[/green] platform name:\t")
         new_val = input()
 
         printc("\t[0] Save \t [1] Cancel\n")
@@ -342,6 +350,9 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
             printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
             cleanScreen()
             platform_infos(account_id, platform_name, username, email, master_passwrd)
+        
+        db = make_conncetion()
+        db_cursor = db.cursor()
 
         db_cursor.execute(update_item_query, (new_val, account_id, platform_name))
     
@@ -349,12 +360,15 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
         db.close()
 
         printc("\n\t[green]The platform name was successfully edited![/green]\n")
+    
+    # Todo: platform url
     elif selected_nbr == 2:
 
         update_item_query = "UPDATE vault SET platform_url = %s WHERE account_id = %s AND  platform_url = %s"
-        
+
+        cleanScreen()
         printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
-        printc(f"\n [green]New platform name: [/green]\t")
+        printc(f"\n [green]New[/green] platform url:\t")
         new_val = input()
 
         printc("\t[0] Save \t [1] Cancel\n")
@@ -364,6 +378,9 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
             printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
             cleanScreen()
             platform_infos(account_id, platform_name, username, email, master_passwrd)
+        
+        db = make_conncetion()
+        db_cursor = db.cursor()
 
         db_cursor.execute(update_item_query, (new_val, account_id, platform_url))
     
@@ -371,12 +388,15 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
         db.close()
 
         printc("\n\t[green]The platform url was successfully edited![/green]\n")
+
+    # Todo: platform username
     elif selected_nbr == 3:
 
         update_item_query = "UPDATE vault SET platform_username = %s WHERE account_id = %s AND  platform_username = %s"
-        
+
+        cleanScreen()
         printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
-        printc(f"\n [green]New platform name: [/green]\t")
+        printc(f"\n [green]New[/green] platform username:\t")
         new_val = input()
 
         printc("\t[0] Save \t [1] Cancel\n")
@@ -386,6 +406,9 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
             printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
             cleanScreen()
             platform_infos(account_id, platform_name, username, email, master_passwrd)
+        
+        db = make_conncetion()
+        db_cursor = db.cursor()
 
         db_cursor.execute(update_item_query, (new_val, account_id, platform_username))
     
@@ -393,13 +416,16 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
         db.close()
 
         printc("\n\t[green]The platform username was successfully edited![/green]\n")
-    elif selected_nbr == 4:
 
-        update_item_query = "UPDATE vault SET platform_email = %s WHERE account_id = %s AND  platform_email = %s"
+    # Todo: platform email   
+    elif selected_nbr == 4:
         
+        update_item_query = "UPDATE vault SET platform_email = %s WHERE account_id = %s AND  platform_email = %s"
+
+        cleanScreen()
         printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
-        printc(f"\n [green]New platform name: [/green]\t")
-        new_val = input()
+        printc(f"\n [green]New[/green] platform email:\t")
+        new_val = sign_up.email_verification(input())
 
         printc("\t[0] Save \t [1] Cancel\n")
         do_you_conform = main.mustBe0or1(main.mustBeInt(input()))
@@ -408,6 +434,9 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
             printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
             cleanScreen()
             platform_infos(account_id, platform_name, username, email, master_passwrd)
+        
+        db = make_conncetion()
+        db_cursor = db.cursor()
 
         db_cursor.execute(update_item_query, (new_val, account_id, platform_email))
     
@@ -415,13 +444,17 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
         db.close()
 
         printc("\n\t[green]The platform email was successfully edited![/green]\n")
+
+    # Todo: platform password
     elif selected_nbr == 5:
 
-        update_item_query = "UPDATE vault SET platform_password = %s WHERE account_id = %s AND  platform_password = %s"
+        get_encryption_key_query = """SELECT encryption_key FROM vault WHERE account_id = %s AND platform_name = %s"""
+        update_item_query = "UPDATE vault SET platform_password = %s WHERE account_id = %s AND  platform_name = %s"
         
+        cleanScreen()
         printc(f"\n\t\t[yellow][ Editing ][/yellow]\n\n")
-        printc(f"\n [green]New platform name: [/green]\t")
-        new_val = input()
+        printc(f"\n [green]New[/green] platform password:\t")
+        new_val = getpass('')
 
         printc("\t[0] Save \t [1] Cancel\n")
         do_you_conform = main.mustBe0or1(main.mustBeInt(input()))
@@ -430,15 +463,25 @@ def edit_password(platform_name, platform_url, platform_username, platform_email
             printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
             cleanScreen()
             platform_infos(account_id, platform_name, username, email, master_passwrd)
-
-        db_cursor.execute(update_item_query, (new_val, account_id, platform_password))
         
+        db = make_conncetion()
+        db_cursor = db.cursor()
+        
+        db_cursor.execute(get_encryption_key_query, (account_id, platform_name))
+
+        encryption_key = ''.join([row for row in db_cursor.fetchone()])
+        
+        f_obj = Fernet(encryption_key)
+
+        new_val = f_obj.encrypt(new_val.encode())
+        
+        db_cursor.execute(update_item_query, (new_val, account_id, platform_name))
+    
         db.commit()
         db.close()
 
         printc("\n\t[green]The platform password was successfully edited![/green]\n")
-    
-    printc("\t\t[yellow]Returing to platform infos .......[/yellow]\n")
+
     cleanScreen()
     platform_infos(account_id, platform_name, username, email, master_passwrd)
 

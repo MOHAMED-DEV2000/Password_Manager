@@ -21,13 +21,26 @@ def MS_vault_interface():
 
 # This function tell us what type of data the user inputed
 def val_type(val):
+
     try:
         return type(literal_eval(val))
     except (ValueError, SyntaxError):
         return str
 
 # This function makes sure the val is an integer
-def mustBeInt(val):
+# def must_be_str(val) -> str:
+
+#     if val_type(val) != str:
+#         while val_type(val) != str:
+#             printc("\t[yellow]Try again![/yellow]")
+#             val = input()
+#         return str(val)
+
+#     return str(val)
+
+# This function makes sure the val is an integer
+def mustBeInt(val) -> int:
+
     if val_type(val) != int:
         while val_type(val) != int:
             printc("\t[red]Try again![/red]")
@@ -36,7 +49,8 @@ def mustBeInt(val):
     return int(val)
 
 # This function makes sure it's within the range [1, 3]
-def mustBeInMenu(val):
+def mustBeInMenu(val: int) -> int:
+
     if val != 0 and val != 1 and val != 2:
         while val != 0 and val != 1 and val != 2:
             printc("\t[red]Please try again![/red]")
@@ -44,13 +58,26 @@ def mustBeInMenu(val):
         return int(val)
     return int(val)
 
+# This function makes sure value is either Yes or No
+# def must_be_y_or_n(val: str) -> str:
+    
+#     val = val.lower()
+#     if val.startswith("y") != True and val.startswith("n") != True:
+#         while val.startswith("y") != True or val.startswith("n") != True:
+#             print("\tPlease try again!")
+#             val = must_be_str(input()).lower()
+#         return str(val).lower()
+
+#     return str(val).lower()
+
 # This function makes sure value is within [0, 1]
-def mustBe0or1(val):
+def mustBe0or1(val: int) -> int:
     if val != 0 and val != 1:
         while val != 0 and val != 1:
             print("\tPlease try again!")
             val = mustBeInt(input())
         return int(val)
+
     return int(val)
 
 # This function for the input proccessing operation

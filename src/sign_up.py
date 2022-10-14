@@ -40,8 +40,8 @@ def username_verification(username: str) -> str:
 
 # This function makes sure that the email has the correct format
 def email_verification(email: str) -> str:
-    if email.endswith('@gmail.com') != True:
-        while email.endswith('@gmail.com') != True:
+    if email.endswith('@gmail.com') != True or email.startswith('@gmail.com') == True:
+        while email.endswith('@gmail.com') != True or email.startswith('@gmail.com') == True:
             printc("\t[red]Incorrect email format\n[/red]")
             email = input('\t')
     return email
